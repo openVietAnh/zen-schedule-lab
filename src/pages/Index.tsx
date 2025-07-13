@@ -1,4 +1,4 @@
-import { Calendar, RefreshCw } from "lucide-react";
+import { Calendar, RefreshCw, CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
@@ -6,9 +6,12 @@ import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
 import { TaskStatusUpdateDialog } from "@/components/TaskStatusUpdateDialog";
 import { useTasks, Task } from "@/hooks/useTasks";
+import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const Index = () => {
+  const { serviceUser, serviceAccessToken } = useAuth();
   const {
     tasks,
     loading,
@@ -20,6 +23,7 @@ const Index = () => {
   } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [syncingAll, setSyncingAll] = useState(false);
 
   const completedTasks = tasks.filter(
     (task) => task.status === "completed"
@@ -33,6 +37,39 @@ const Index = () => {
     month: "long",
     day: "numeric",
   });
+
+  const handleSyncAll = async () => {
+    if (!serviceUser?.id || !serviceAccessToken) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    setSyncingAll(true);
+    try {
+      const response = await fetch(
+        `https://team-sync-pro-nguyentrieu8.replit.app/calendar/sync/all?user_id=${serviceUser.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceAccessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to sync all tasks");
+      }
+
+      toast.success("All tasks synced to Google Calendar");
+      refreshTasks();
+    } catch (error) {
+      toast.error("Failed to sync tasks to calendar");
+      console.error("Error syncing all tasks:", error);
+    } finally {
+      setSyncingAll(false);
+    }
+  };
 
   return (
     <div className="bg-background">
@@ -80,16 +117,29 @@ const Index = () => {
                       ({completedTasks}/{totalTasks} completed)
                     </span>
                   </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={refreshTasks}
-                    disabled={loading}
-                  >
-                    <RefreshCw
-                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                    />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSyncAll}
+                      disabled={syncingAll || !serviceUser}
+                    >
+                      <CloudUpload
+                        className={`h-4 w-4 ${syncingAll ? "animate-spin" : ""}`}
+                      />
+                      <span className="ml-1">Sync all</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={refreshTasks}
+                      disabled={loading}
+                    >
+                      <RefreshCw
+                        className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                      />
+                    </Button>
+                  </div>
                 </div>
 
                 <QuickAddTask onTaskAdded={refreshTasks} />

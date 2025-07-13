@@ -17,6 +17,7 @@ export interface Task {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  calendar_sync_status: "pending" | "synced";
 }
 
 export const useTasks = () => {

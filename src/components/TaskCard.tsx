@@ -1,9 +1,11 @@
-import { Clock, CheckCircle, Circle, Calendar, User } from "lucide-react";
+import { Clock, CheckCircle, Circle, Calendar, User, CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Task } from "@/hooks/useTasks";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface TaskCardProps {
   task: Task;
@@ -11,6 +13,7 @@ interface TaskCardProps {
 }
 
 export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
+  const { serviceUser, serviceAccessToken } = useAuth();
   const isCompleted = task.status === "completed";
   const isDisabled = task.status === "completed" || task.status === "cancelled";
 
@@ -39,6 +42,38 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
 
   const isOverdue =
     task.due_date && new Date(task.due_date) < new Date() && !isCompleted;
+
+  const handleSyncToCalendar = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!serviceUser?.id || !serviceAccessToken) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://team-sync-pro-nguyentrieu8.replit.app/calendar/sync/task/${task.id}?user_id=${serviceUser.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceAccessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to sync task to calendar");
+      }
+
+      toast.success("Task synced to Google Calendar");
+      // The parent component should refresh tasks
+    } catch (error) {
+      toast.error("Failed to sync task to calendar");
+      console.error("Error syncing task:", error);
+    }
+  };
 
   return (
     <Card
@@ -113,15 +148,29 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
             )}
 
             {task.due_date && (
-              <div
-                className={cn(
-                  "flex items-center gap-1",
-                  isOverdue && "text-destructive font-medium"
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "flex items-center gap-1",
+                    isOverdue && "text-destructive font-medium"
+                  )}
+                >
+                  <Calendar className="h-3 w-3" />
+                  <span>{formatDate(task.due_date)}</span>
+                  {isOverdue && <span className="text-destructive">⚠</span>}
+                </div>
+                
+                {task.calendar_sync_status === "pending" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 px-2 text-xs text-primary hover:text-primary-foreground hover:bg-primary"
+                    onClick={handleSyncToCalendar}
+                  >
+                    <CloudUpload className="h-3 w-3 mr-1" />
+                    Sync to Google Calendar
+                  </Button>
                 )}
-              >
-                <Calendar className="h-3 w-3" />
-                <span>{formatDate(task.due_date)}</span>
-                {isOverdue && <span className="text-destructive">⚠</span>}
               </div>
             )}
           </div>
