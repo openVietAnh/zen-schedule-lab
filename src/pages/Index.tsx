@@ -21,48 +21,50 @@ const Index = () => {
       title: "Review project proposal",
       completed: false,
       priority: "high",
-      estimatedTime: 45
+      estimatedTime: 45,
     },
     {
-      id: "2", 
+      id: "2",
       title: "Respond to team emails",
       completed: true,
       priority: "medium",
-      estimatedTime: 15
+      estimatedTime: 15,
     },
     {
       id: "3",
       title: "Plan weekend trip",
       completed: false,
       priority: "low",
-      estimatedTime: 30
-    }
+      estimatedTime: 30,
+    },
   ]);
 
   const handleToggleTask = (id: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
   };
 
   const handleAddTask = (newTask: Omit<Task, "id" | "completed">) => {
     const task: Task = {
       id: Date.now().toString(),
       completed: false,
-      ...newTask
+      ...newTask,
     };
-    setTasks(prev => [task, ...prev]);
+    setTasks((prev) => [task, ...prev]);
   };
 
-  const completedTasks = tasks.filter(task => task.completed).length;
+  const completedTasks = tasks.filter((task) => task.completed).length;
   const totalTasks = tasks.length;
 
   const currentDate = new Date();
-  const dateString = currentDate.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  const dateString = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return (
@@ -79,10 +81,12 @@ const Index = () => {
                 <h1 className="text-xl font-semibold bg-gradient-primary bg-clip-text text-transparent">
                   Zen Schedule
                 </h1>
-                <p className="text-xs text-muted-foreground">Mindful Productivity</p>
+                <p className="text-xs text-muted-foreground">
+                  Mindful Productivity
+                </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm">
                 <Bell className="h-5 w-5" />
@@ -112,9 +116,11 @@ const Index = () => {
             </p>
           </div>
 
+          <PomodoroTimer />
+
           {/* Stats Overview */}
           <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <DailyStats 
+            <DailyStats
               completedTasks={completedTasks}
               totalTasks={totalTasks}
               focusTime={85} // 1h 25m example
@@ -125,7 +131,10 @@ const Index = () => {
           {/* Main Grid */}
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Tasks Column */}
-            <div className="lg:col-span-2 space-y-6 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <div
+              className="lg:col-span-2 space-y-6 animate-fade-in"
+              style={{ animationDelay: "0.2s" }}
+            >
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   Today's Focus
@@ -133,9 +142,9 @@ const Index = () => {
                     ({completedTasks}/{totalTasks} completed)
                   </span>
                 </h3>
-                
+
                 <QuickAddTask onAddTask={handleAddTask} />
-                
+
                 <div className="space-y-3">
                   {tasks.map((task) => (
                     <TaskCard
@@ -149,16 +158,19 @@ const Index = () => {
             </div>
 
             {/* Timer Column */}
-            <div className="space-y-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <PomodoroTimer />
-              
+            <div
+              className="space-y-6 animate-fade-in"
+              style={{ animationDelay: "0.3s" }}
+            >
               {/* Motivational Quote */}
               <div className="p-6 bg-gradient-warm rounded-xl border text-center">
                 <div className="animate-breathe">
                   <p className="text-sm italic text-muted-foreground mb-2">
                     "The way to get started is to quit talking and begin doing."
                   </p>
-                  <p className="text-xs text-muted-foreground/80">— Walt Disney</p>
+                  <p className="text-xs text-muted-foreground/80">
+                    — Walt Disney
+                  </p>
                 </div>
               </div>
             </div>

@@ -17,18 +17,18 @@ export const PomodoroTimer = () => {
   const durations = {
     work: 25 * 60,
     shortBreak: 5 * 60,
-    longBreak: 15 * 60
+    longBreak: 15 * 60,
   };
 
   const modeLabels = {
     work: "Focus Time",
     shortBreak: "Short Break",
-    longBreak: "Long Break"
+    longBreak: "Long Break",
   };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((time) => time - 1);
@@ -42,16 +42,17 @@ export const PomodoroTimer = () => {
 
   const handleTimerComplete = () => {
     setIsRunning(false);
-    
+
     if (mode === "work") {
-      setCompletedPomodoros(prev => prev + 1);
+      setCompletedPomodoros((prev) => prev + 1);
       toast({
         title: "Focus session completed! 🌱",
         description: "Time for a well-deserved break.",
       });
-      
+
       // Auto switch to break
-      const nextMode = completedPomodoros % 4 === 3 ? "longBreak" : "shortBreak";
+      const nextMode =
+        completedPomodoros % 4 === 3 ? "longBreak" : "shortBreak";
       setMode(nextMode);
       setTimeLeft(durations[nextMode]);
     } else {
@@ -82,7 +83,9 @@ export const PomodoroTimer = () => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const progress = ((durations[mode] - timeLeft) / durations[mode]) * 100;
@@ -112,15 +115,15 @@ export const PomodoroTimer = () => {
           <h2 className="text-lg font-medium text-foreground">
             {modeLabels[mode]}
           </h2>
-          
+
           <div className="flex justify-center">
-            <ProgressRing 
+            {/* <ProgressRing 
               progress={progress} 
               size="lg" 
               showPercentage={false}
               className="relative"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
+            /> */}
+            <div className="inset-0 flex items-center justify-center">
               <span className="text-2xl font-mono font-medium text-foreground">
                 {formatTime(timeLeft)}
               </span>
@@ -141,12 +144,8 @@ export const PomodoroTimer = () => {
               <Play className="h-5 w-5" />
             )}
           </Button>
-          
-          <Button
-            onClick={resetTimer}
-            variant="outline"
-            size="lg"
-          >
+
+          <Button onClick={resetTimer} variant="outline" size="lg">
             <RotateCcw className="h-5 w-5" />
           </Button>
         </div>
