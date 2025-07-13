@@ -25,7 +25,7 @@ interface QuickAddTaskProps {
 }
 
 export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
-  const { user } = useAuth();
+  const { serviceUser } = useAuth();
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,13 +38,13 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !user?.id) return;
+    if (!title.trim() || !serviceUser?.id) return;
 
     setIsLoading(true);
     
     try {
       const url = new URL('https://team-sync-pro-nguyentrieu8.replit.app/tasks');
-      url.searchParams.append('creator_id', user.id);
+      url.searchParams.append('creator_id', serviceUser.id);
       
       const response = await fetch(url.toString(), {
         method: 'POST',
