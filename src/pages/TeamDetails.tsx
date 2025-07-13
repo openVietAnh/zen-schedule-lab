@@ -297,7 +297,7 @@ const TeamDetails = () => {
   return (
     <div className="h-full flex">
       {/* Left Sidebar */}
-      <div className="w-80 border-r bg-background p-6 overflow-y-auto">
+      <div className="w-64 border-r bg-background p-6 overflow-y-auto">
         {/* Team Info Card */}
         <Card className="mb-6">
           <CardHeader>
@@ -386,13 +386,13 @@ const TeamDetails = () => {
 
             {/* Weekly Leaderboard */}
             {weeklyLeaderboard && (
-              <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+              <Card className="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/20 dark:via-yellow-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-yellow-800">
+                  <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
                     <Trophy className="h-5 w-5" />
                     Weekly Leaderboard
                   </CardTitle>
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
                     {formatDate(weeklyLeaderboard.week_start)} - {formatDate(weeklyLeaderboard.week_end)}
                   </p>
                 </CardHeader>
@@ -403,14 +403,22 @@ const TeamDetails = () => {
                       const contributor = weeklyLeaderboard.contributors?.find(c => c.rank === position);
                       const icons = [Trophy, Medal, Award];
                       const IconComponent = icons[position - 1];
-                      const colors = ["text-yellow-600", "text-gray-500", "text-amber-600"];
-                      const bgColors = ["bg-yellow-100", "bg-gray-100", "bg-amber-100"];
+                      const colors = [
+                        "text-yellow-600 dark:text-yellow-400", 
+                        "text-gray-500 dark:text-gray-400", 
+                        "text-amber-600 dark:text-amber-400"
+                      ];
+                      const bgColors = [
+                        "bg-yellow-100 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700", 
+                        "bg-gray-100 dark:bg-gray-800/50 border-gray-200 dark:border-gray-600", 
+                        "bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700"
+                      ];
                       
                       return (
                         <div key={position} className={`p-4 rounded-lg ${bgColors[position - 1]} border`}>
                           <div className="flex items-center gap-3 mb-3">
                             <IconComponent className={`h-6 w-6 ${colors[position - 1]}`} />
-                            <span className="font-bold text-lg">#{position}</span>
+                            <span className="font-bold text-lg text-foreground">#{position}</span>
                           </div>
                           
                           {contributor ? (
@@ -422,23 +430,23 @@ const TeamDetails = () => {
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                  <p className="font-medium text-sm">{contributor.user_name}</p>
+                                  <p className="font-medium text-sm text-foreground">{contributor.user_name}</p>
                                   <p className="text-xs text-muted-foreground">{contributor.user_email}</p>
                                 </div>
                               </div>
                               
                               <div className="space-y-1">
                                 <div className="flex justify-between text-xs">
-                                  <span>Completed Tasks:</span>
-                                  <span className="font-medium">{contributor.completed_tasks}</span>
+                                  <span className="text-muted-foreground">Completed Tasks:</span>
+                                  <span className="font-medium text-foreground">{contributor.completed_tasks}</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                  <span>Completion Rate:</span>
-                                  <span className="font-medium">{contributor.completion_rate.toFixed(1)}%</span>
+                                  <span className="text-muted-foreground">Completion Rate:</span>
+                                  <span className="font-medium text-foreground">{contributor.completion_rate.toFixed(1)}%</span>
                                 </div>
                                 <div className="flex justify-between text-xs">
-                                  <span>Hours:</span>
-                                  <span className="font-medium">{contributor.total_hours_completed.toFixed(1)}h</span>
+                                  <span className="text-muted-foreground">Hours:</span>
+                                  <span className="font-medium text-foreground">{contributor.total_hours_completed.toFixed(1)}h</span>
                                 </div>
                               </div>
                             </div>
@@ -454,7 +462,7 @@ const TeamDetails = () => {
                   </div>
                   
                   {weeklyLeaderboard.contributors && weeklyLeaderboard.contributors.length > 3 && (
-                    <div className="mt-4 pt-4 border-t">
+                    <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
                       <p className="text-sm text-muted-foreground">
                         +{weeklyLeaderboard.contributors.length - 3} more contributors this week
                       </p>
