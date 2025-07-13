@@ -161,7 +161,9 @@ const Index = () => {
                   </span>
                 </h3>
 
-                <QuickAddTask onAddTask={handleAddTask} />
+                <QuickAddTask onTaskAdded={() => {
+                  // Optionally refresh tasks here when API integration is complete
+                }} />
 
                 <div className="space-y-3">
                   {tasks.map((task) => (

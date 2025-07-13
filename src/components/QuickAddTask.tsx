@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Plus, Zap, Clock } from "lucide-react";
+import { Plus, Zap, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -10,36 +15,82 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface QuickAddTaskProps {
-  onAddTask: (task: {
-    title: string;
-    priority: "high" | "medium" | "low";
-    estimatedTime?: number;
-  }) => void;
+  onTaskAdded?: () => void;
 }
 
-export const QuickAddTask = ({ onAddTask }: QuickAddTaskProps) => {
+export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Form fields
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState<"high" | "medium" | "low">("medium");
-  const [estimatedTime, setEstimatedTime] = useState<number | undefined>();
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<"low" | "medium" | "high" | "urgent">("medium");
+  const [dueDate, setDueDate] = useState<Date>();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !user?.id) return;
 
-    onAddTask({
-      title: title.trim(),
-      priority,
-      estimatedTime
-    });
+    setIsLoading(true);
+    
+    try {
+      const url = new URL('https://team-sync-pro-nguyentrieu8.replit.app/tasks');
+      url.searchParams.append('creator_id', user.id);
+      
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim() || null,
+          project_id: null, // Will be implemented later
+          assignee_id: null, // Using creator as assignee for now
+          parent_task_id: null,
+          status: "todo",
+          priority,
+          due_date: dueDate ? dueDate.toISOString() : null,
+        }),
+      });
 
-    // Reset form
-    setTitle("");
-    setPriority("medium");
-    setEstimatedTime(undefined);
-    setIsExpanded(false);
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+
+      toast({
+        title: "Task created",
+        description: "Your task has been successfully created.",
+      });
+
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setPriority("medium");
+      setDueDate(undefined);
+      setIsExpanded(false);
+      
+      if (onTaskAdded) {
+        onTaskAdded();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleQuickAdd = () => {
@@ -69,59 +120,78 @@ export const QuickAddTask = ({ onAddTask }: QuickAddTaskProps) => {
             placeholder="What needs to be done?"
             className="border-none shadow-none text-base px-0 focus-visible:ring-0"
             autoFocus
+            required
           />
           
-          <div className="flex gap-2">
-            <Select value={priority} onValueChange={(value: "high" | "medium" | "low") => setPriority(value)}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="high">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-3 w-3 text-warning" />
-                    High
-                  </div>
-                </SelectItem>
-                <SelectItem value="medium">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-primary" />
-                    Medium
-                  </div>
-                </SelectItem>
-                <SelectItem value="low">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-muted-foreground" />
-                    Low
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Add a description..."
+            className="border-none shadow-none px-0 focus-visible:ring-0 resize-none"
+            rows={2}
+          />
+          
+          <div className="space-y-3">
+            <div>
+              <Label className="text-sm font-medium">Priority</Label>
+              <RadioGroup value={priority} onValueChange={(value: "low" | "medium" | "high" | "urgent") => setPriority(value)} className="flex gap-4 mt-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="low" id="low" />
+                  <Label htmlFor="low" className="text-sm">Low</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="medium" id="medium" />
+                  <Label htmlFor="medium" className="text-sm">Medium</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="high" id="high" />
+                  <Label htmlFor="high" className="text-sm">High</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="urgent" id="urgent" />
+                  <Label htmlFor="urgent" className="text-sm">Urgent</Label>
+                </div>
+              </RadioGroup>
+            </div>
             
-            <div className="flex items-center gap-2 flex-1">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <Input
-                type="number"
-                value={estimatedTime || ""}
-                onChange={(e) => setEstimatedTime(e.target.value ? parseInt(e.target.value) : undefined)}
-                placeholder="25"
-                className="w-20 text-center"
-                min="1"
-                max="480"
-              />
-              <span className="text-sm text-muted-foreground">min</span>
+            <div>
+              <Label className="text-sm font-medium">Due Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-2",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" size="sm" className="bg-gradient-primary">
-              Add Task
+            <Button type="submit" size="sm" className="bg-gradient-primary" disabled={isLoading}>
+              {isLoading ? "Adding..." : "Add Task"}
             </Button>
             <Button 
               type="button" 
               variant="ghost" 
               size="sm"
               onClick={() => setIsExpanded(false)}
+              disabled={isLoading}
             >
               Cancel
             </Button>
