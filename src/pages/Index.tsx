@@ -9,13 +9,22 @@ import { useTasks, Task } from "@/hooks/useTasks";
 import { useState } from "react";
 
 const Index = () => {
-  const { tasks, loading, error, refreshTasks, loadMore, toggleTaskStatus, hasMore } = useTasks();
+  const {
+    tasks,
+    loading,
+    error,
+    refreshTasks,
+    loadMore,
+    toggleTaskStatus,
+    hasMore,
+  } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
 
-  const completedTasks = tasks.filter((task) => task.status === 'done').length;
+  const completedTasks = tasks.filter(
+    (task) => task.status === "completed"
+  ).length;
   const totalTasks = tasks.length;
-
 
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString("en-US", {
@@ -77,11 +86,13 @@ const Index = () => {
                     onClick={refreshTasks}
                     disabled={loading}
                   >
-                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    <RefreshCw
+                      className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                    />
                   </Button>
                 </div>
 
-            <QuickAddTask onTaskAdded={refreshTasks} />
+                <QuickAddTask onTaskAdded={refreshTasks} />
 
                 {error && (
                   <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
@@ -93,7 +104,10 @@ const Index = () => {
                   {loading && tasks.length === 0 ? (
                     <div className="space-y-3">
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />
+                        <div
+                          key={i}
+                          className="h-20 bg-muted animate-pulse rounded-lg"
+                        />
                       ))}
                     </div>
                   ) : (
@@ -108,7 +122,7 @@ const Index = () => {
                           }}
                         />
                       ))}
-                      
+
                       {hasMore && (
                         <Button
                           variant="outline"

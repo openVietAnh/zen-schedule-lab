@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Task } from "@/hooks/useTasks";
@@ -13,11 +18,11 @@ interface TaskStatusUpdateDialogProps {
   onSuccess: () => void;
 }
 
-export const TaskStatusUpdateDialog = ({ 
-  task, 
-  isOpen, 
-  onClose, 
-  onSuccess 
+export const TaskStatusUpdateDialog = ({
+  task,
+  isOpen,
+  onClose,
+  onSuccess,
 }: TaskStatusUpdateDialogProps) => {
   const { serviceAccessToken } = useAuth();
   const { toast } = useToast();
@@ -30,7 +35,7 @@ export const TaskStatusUpdateDialog = ({
       case "todo":
         return ["in_progress", "cancelled"];
       case "in_progress":
-        return ["done", "cancelled"];
+        return ["completed", "cancelled"];
       case "done":
       case "cancelled":
         return [];
@@ -43,7 +48,7 @@ export const TaskStatusUpdateDialog = ({
     switch (status) {
       case "in_progress":
         return "In Progress";
-      case "done":
+      case "completed":
         return "Completed";
       case "cancelled":
         return "Cancelled";
@@ -56,7 +61,7 @@ export const TaskStatusUpdateDialog = ({
     switch (status) {
       case "in_progress":
         return "default";
-      case "done":
+      case "completed":
         return "default";
       case "cancelled":
         return "destructive";
@@ -67,14 +72,14 @@ export const TaskStatusUpdateDialog = ({
 
   const handleUpdateStatus = async (newStatus: string) => {
     setIsUpdating(true);
-    
+
     try {
       const response = await fetch(
         `https://team-sync-pro-nguyentrieu8.replit.app/tasks/${task.id}`,
         {
           method: "PATCH",
           headers: {
-            "Authorization": `Bearer ${serviceAccessToken}`,
+            Authorization: `Bearer ${serviceAccessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -93,7 +98,9 @@ export const TaskStatusUpdateDialog = ({
       if (response.ok) {
         toast({
           title: "Success",
-          description: `Task status updated to ${getStatusLabel(newStatus).toLowerCase()}`,
+          description: `Task status updated to ${getStatusLabel(
+            newStatus
+          ).toLowerCase()}`,
         });
         onSuccess();
         onClose();
@@ -123,19 +130,21 @@ export const TaskStatusUpdateDialog = ({
         <DialogHeader>
           <DialogTitle>Update Task Status</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="space-y-2">
             <h3 className="font-medium">{task.title}</h3>
             <p className="text-sm text-muted-foreground">
-              Current status: <Badge variant="secondary">{getStatusLabel(task.status)}</Badge>
+              Current status:{" "}
+              <Badge variant="secondary">{getStatusLabel(task.status)}</Badge>
             </p>
           </div>
 
           {availableStatuses.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-sm text-muted-foreground">
-                This task cannot be updated. Tasks with status "{getStatusLabel(task.status).toLowerCase()}" are final.
+                This task cannot be updated. Tasks with status "
+                {getStatusLabel(task.status).toLowerCase()}" are final.
               </p>
             </div>
           ) : (
@@ -162,8 +171,8 @@ export const TaskStatusUpdateDialog = ({
           )}
 
           <div className="flex gap-2 pt-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="flex-1"
               onClick={onClose}
               disabled={isUpdating}

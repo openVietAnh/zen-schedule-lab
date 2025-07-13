@@ -8,7 +8,7 @@ export interface Task {
   project_id: number | null;
   assignee_id: number | null;
   parent_task_id: number | null;
-  status: "todo" | "in_progress" | "done" | "cancelled";
+  status: "todo" | "in_progress" | "completed" | "cancelled";
   priority: "low" | "medium" | "high" | "urgent";
   due_date: string | null;
   creator_id: number;
@@ -81,7 +81,7 @@ export const useTasks = () => {
     const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
 
-    const newStatus = task.status === "done" ? "todo" : "done";
+    const newStatus = task.status === "completed" ? "todo" : "completed";
 
     setTasks((prev) =>
       prev.map((t) =>
@@ -90,7 +90,7 @@ export const useTasks = () => {
               ...t,
               status: newStatus,
               completed_at:
-                newStatus === "done" ? new Date().toISOString() : null,
+                newStatus === "completed" ? new Date().toISOString() : null,
             }
           : t
       )

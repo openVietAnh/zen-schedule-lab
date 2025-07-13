@@ -1,13 +1,34 @@
-import { FolderKanban, Plus, Calendar, Users, Edit, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import {
+  FolderKanban,
+  Plus,
+  Calendar,
+  Users,
+  Edit,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
@@ -30,7 +51,7 @@ interface Task {
   project_id: number;
   assignee_id: number;
   parent_task_id: number;
-  status: "todo" | "in_progress" | "done";
+  status: "todo" | "in_progress" | "completed" | "cancelled";
   priority: "low" | "medium" | "high";
   due_date: string;
   creator_id: number;
@@ -63,14 +84,14 @@ const Projects = () => {
   const [editForm, setEditForm] = useState({
     name: "",
     description: "",
-    team_id: 0
+    team_id: 0,
   });
   const [teams, setTeams] = useState<Team[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createForm, setCreateForm] = useState({
     name: "",
     description: "",
-    team_id: ""
+    team_id: "",
   });
 
   useEffect(() => {
@@ -159,7 +180,7 @@ const Projects = () => {
     setEditForm({
       name: project.name,
       description: project.description || "",
-      team_id: project.team_id
+      team_id: project.team_id,
     });
     fetchProjectTasks(project.id);
     setIsModalOpen(true);
@@ -187,7 +208,9 @@ const Projects = () => {
       if (response.ok) {
         const updatedProject = await response.json();
         setSelectedProject(updatedProject);
-        setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+        setProjects(
+          projects.map((p) => (p.id === updatedProject.id ? updatedProject : p))
+        );
         setIsEditing(false);
         toast({
           title: "Success",
@@ -262,26 +285,34 @@ const Projects = () => {
   };
 
   const getStatusColor = (isActive: boolean) => {
-    return isActive 
-      ? "bg-success text-success-foreground" 
+    return isActive
+      ? "bg-success text-success-foreground"
       : "bg-muted text-muted-foreground";
   };
 
   const getTaskStatusIcon = (status: string) => {
     switch (status) {
-      case "todo": return <Clock className="h-4 w-4 text-muted-foreground" />;
-      case "in_progress": return <AlertCircle className="h-4 w-4 text-warning" />;
-      case "done": return <CheckCircle className="h-4 w-4 text-success" />;
-      default: return <Clock className="h-4 w-4 text-muted-foreground" />;
+      case "todo":
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
+      case "in_progress":
+        return <AlertCircle className="h-4 w-4 text-warning" />;
+      case "completed":
+        return <CheckCircle className="h-4 w-4 text-success" />;
+      default:
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high": return "bg-destructive text-destructive-foreground";
-      case "medium": return "bg-warning text-warning-foreground";
-      case "low": return "bg-muted text-muted-foreground";
-      default: return "bg-muted text-muted-foreground";
+      case "high":
+        return "bg-destructive text-destructive-foreground";
+      case "medium":
+        return "bg-warning text-warning-foreground";
+      case "low":
+        return "bg-muted text-muted-foreground";
+      default:
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -321,27 +352,36 @@ const Projects = () => {
                   <Input
                     id="create-name"
                     value={createForm.name}
-                    onChange={(e) => setCreateForm({...createForm, name: e.target.value})}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, name: e.target.value })
+                    }
                     placeholder="Enter project name"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="create-description">Description</Label>
                   <Textarea
                     id="create-description"
                     value={createForm.description}
-                    onChange={(e) => setCreateForm({...createForm, description: e.target.value})}
+                    onChange={(e) =>
+                      setCreateForm({
+                        ...createForm,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Enter project description (optional)"
                     rows={3}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="create-team">Team *</Label>
                   <Select
                     value={createForm.team_id}
-                    onValueChange={(value) => setCreateForm({...createForm, team_id: value})}
+                    onValueChange={(value) =>
+                      setCreateForm({ ...createForm, team_id: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a team" />
@@ -355,10 +395,10 @@ const Projects = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="flex gap-2 pt-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="flex-1"
                     onClick={() => setIsCreateModalOpen(false)}
                   >
@@ -376,13 +416,20 @@ const Projects = () => {
         {projects.length === 0 ? (
           <div className="text-center py-12">
             <FolderKanban className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">No projects found</h3>
-            <p className="text-muted-foreground">Create your first project to get started.</p>
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              No projects found
+            </h3>
+            <p className="text-muted-foreground">
+              Create your first project to get started.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <Card key={project.id} className="hover:shadow-md transition-shadow">
+              <Card
+                key={project.id}
+                className="hover:shadow-md transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">{project.name}</CardTitle>
@@ -395,25 +442,30 @@ const Projects = () => {
                   <p className="text-sm text-muted-foreground">
                     {project.description || "No description available"}
                   </p>
-                  
+
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>{new Date(project.created_at).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(project.created_at).toLocaleDateString()}
+                      </span>
                     </div>
                     <span>Team ID: {project.team_id}</span>
                   </div>
 
-                  <Dialog open={isModalOpen && selectedProject?.id === project.id} onOpenChange={(open) => {
-                    if (!open) {
-                      setIsModalOpen(false);
-                      setSelectedProject(null);
-                      setIsEditing(false);
-                    }
-                  }}>
+                  <Dialog
+                    open={isModalOpen && selectedProject?.id === project.id}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setIsModalOpen(false);
+                        setSelectedProject(null);
+                        setIsEditing(false);
+                      }
+                    }}
+                  >
                     <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="w-full"
                         onClick={() => handleViewProject(project)}
                       >
@@ -426,19 +478,25 @@ const Projects = () => {
                           {selectedProject?.name}
                         </DialogTitle>
                       </DialogHeader>
-                      
+
                       <Tabs defaultValue="tasks" className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
                           <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                          <TabsTrigger value="details">Project Details</TabsTrigger>
+                          <TabsTrigger value="details">
+                            Project Details
+                          </TabsTrigger>
                         </TabsList>
-                        
+
                         <TabsContent value="tasks" className="space-y-4">
                           <div className="space-y-3">
-                            <h3 className="text-lg font-semibold">Project Tasks</h3>
+                            <h3 className="text-lg font-semibold">
+                              Project Tasks
+                            </h3>
                             {projectTasks.length === 0 ? (
                               <div className="text-center py-8">
-                                <p className="text-muted-foreground">No tasks found for this project.</p>
+                                <p className="text-muted-foreground">
+                                  No tasks found for this project.
+                                </p>
                               </div>
                             ) : (
                               <div className="space-y-3">
@@ -447,21 +505,36 @@ const Projects = () => {
                                     <div className="flex items-center justify-between mb-2">
                                       <div className="flex items-center gap-2">
                                         {getTaskStatusIcon(task.status)}
-                                        <h4 className="font-medium">{task.title}</h4>
+                                        <h4 className="font-medium">
+                                          {task.title}
+                                        </h4>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <Badge className={getPriorityColor(task.priority)}>
+                                        <Badge
+                                          className={getPriorityColor(
+                                            task.priority
+                                          )}
+                                        >
                                           {task.priority}
                                         </Badge>
-                                        <Badge variant="outline">{task.status}</Badge>
+                                        <Badge variant="outline">
+                                          {task.status}
+                                        </Badge>
                                       </div>
                                     </div>
                                     <p className="text-sm text-muted-foreground mb-2">
                                       {task.description}
                                     </p>
                                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                      <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
-                                      <span>Est. Hours: {task.ai_estimated_hours}</span>
+                                      <span>
+                                        Due:{" "}
+                                        {new Date(
+                                          task.due_date
+                                        ).toLocaleDateString()}
+                                      </span>
+                                      <span>
+                                        Est. Hours: {task.ai_estimated_hours}
+                                      </span>
                                     </div>
                                   </Card>
                                 ))}
@@ -469,11 +542,13 @@ const Projects = () => {
                             )}
                           </div>
                         </TabsContent>
-                        
+
                         <TabsContent value="details" className="space-y-4">
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-lg font-semibold">Project Information</h3>
+                              <h3 className="text-lg font-semibold">
+                                Project Information
+                              </h3>
                               <Button
                                 variant={isEditing ? "outline" : "default"}
                                 size="sm"
@@ -483,44 +558,66 @@ const Projects = () => {
                                 {isEditing ? "Cancel" : "Edit"}
                               </Button>
                             </div>
-                            
+
                             <div className="grid gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="project-name">Project Name</Label>
+                                <Label htmlFor="project-name">
+                                  Project Name
+                                </Label>
                                 <Input
                                   id="project-name"
                                   value={editForm.name}
-                                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      name: e.target.value,
+                                    })
+                                  }
                                   disabled={!isEditing}
                                 />
                               </div>
-                              
+
                               <div className="space-y-2">
-                                <Label htmlFor="project-description">Description</Label>
+                                <Label htmlFor="project-description">
+                                  Description
+                                </Label>
                                 <Textarea
                                   id="project-description"
                                   value={editForm.description}
-                                  onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      description: e.target.value,
+                                    })
+                                  }
                                   disabled={!isEditing}
                                   rows={3}
                                 />
                               </div>
-                              
+
                               <div className="space-y-2">
                                 <Label htmlFor="team-id">Team ID</Label>
                                 <Input
                                   id="team-id"
                                   type="number"
                                   value={editForm.team_id}
-                                  onChange={(e) => setEditForm({...editForm, team_id: parseInt(e.target.value) || 0})}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      team_id: parseInt(e.target.value) || 0,
+                                    })
+                                  }
                                   disabled={!isEditing}
                                 />
                               </div>
                             </div>
-                            
+
                             {isEditing && (
                               <div className="flex gap-2 pt-4">
-                                <Button onClick={handleUpdateProject} className="flex-1">
+                                <Button
+                                  onClick={handleUpdateProject}
+                                  className="flex-1"
+                                >
                                   Submit Changes
                                 </Button>
                               </div>

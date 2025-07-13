@@ -11,36 +11,37 @@ interface TaskCardProps {
 }
 
 export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
-  const isCompleted = task.status === 'done';
-  const isDisabled = task.status === 'done' || task.status === 'cancelled';
-  
+  const isCompleted = task.status === "completed";
+  const isDisabled = task.status === "completed" || task.status === "cancelled";
+
   const priorityColors = {
     urgent: "bg-destructive/10 border-destructive/20",
     high: "bg-warning/10 border-warning/20",
     medium: "bg-primary/10 border-primary/20",
-    low: "bg-muted border-border"
+    low: "bg-muted border-border",
   };
 
   const statusColors = {
     todo: "bg-slate-100 text-slate-800",
     in_progress: "bg-blue-100 text-blue-800",
     done: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800"
+    cancelled: "bg-red-100 text-red-800",
   };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { 
-      month: "short", 
-      day: "numeric"
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
   };
 
-  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !isCompleted;
+  const isOverdue =
+    task.due_date && new Date(task.due_date) < new Date() && !isCompleted;
 
   return (
-    <Card 
+    <Card
       className={cn(
         "p-4 transition-all duration-300 hover:shadow-md group",
         isCompleted && "opacity-60",
@@ -69,9 +70,9 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
                 <Circle className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
               )}
             </Button>
-            
+
             <div className="flex-1 min-w-0">
-              <h3 
+              <h3
                 className={cn(
                   "text-sm font-medium transition-all duration-200 leading-tight",
                   isCompleted && "line-through text-muted-foreground"
@@ -79,7 +80,7 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
               >
                 {task.title}
               </h3>
-              
+
               {task.description && (
                 <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                   {task.description}
@@ -87,10 +88,13 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
               )}
             </div>
           </div>
-          
+
           <div className="flex gap-2 flex-shrink-0">
-            <Badge variant="secondary" className={cn("text-xs", statusColors[task.status])}>
-              {task.status.replace('_', ' ')}
+            <Badge
+              variant="secondary"
+              className={cn("text-xs", statusColors[task.status])}
+            >
+              {task.status.replace("_", " ")}
             </Badge>
             <Badge variant="outline" className="text-xs">
               {task.priority}
@@ -107,22 +111,22 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
                 <span>{task.ai_estimated_hours}h</span>
               </div>
             )}
-            
+
             {task.due_date && (
-              <div className={cn(
-                "flex items-center gap-1",
-                isOverdue && "text-destructive font-medium"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center gap-1",
+                  isOverdue && "text-destructive font-medium"
+                )}
+              >
                 <Calendar className="h-3 w-3" />
                 <span>{formatDate(task.due_date)}</span>
                 {isOverdue && <span className="text-destructive">⚠</span>}
               </div>
             )}
           </div>
-          
-          <div className="text-xs">
-            Created {formatDate(task.created_at)}
-          </div>
+
+          <div className="text-xs">Created {formatDate(task.created_at)}</div>
         </div>
       </div>
     </Card>
