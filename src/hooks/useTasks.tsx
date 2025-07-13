@@ -34,33 +34,35 @@ export const useTasks = () => {
     setError(null);
 
     try {
-      const url = new URL('https://team-sync-pro-nguyentrieu8.replit.app/tasks');
-      url.searchParams.append('skip', skip.toString());
-      url.searchParams.append('limit', limit.toString());
-      url.searchParams.append('assignee_id', serviceUser.id);
+      const url = new URL(
+        "https://team-sync-pro-nguyentrieu8.replit.app/tasks"
+      );
+      url.searchParams.append("skip", skip.toString());
+      url.searchParams.append("limit", limit.toString());
+      url.searchParams.append("assignee_id", serviceUser.id);
       // project_id and status are set to null as requested
 
       const response = await fetch(url.toString(), {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${serviceAccessToken}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${serviceAccessToken}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
+        throw new Error("Failed to fetch tasks");
       }
 
       const data = await response.json();
-      
+
       if (skip === 0) {
         setTasks(data);
       } else {
-        setTasks(prev => [...prev, ...data]);
+        setTasks((prev) => [...prev, ...data]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -68,23 +70,28 @@ export const useTasks = () => {
 
   const refreshTasks = () => {
     setSkip(0);
-    setTasks([]);
+    fetchTasks();
   };
 
   const loadMore = () => {
-    setSkip(prev => prev + limit);
+    setSkip((prev) => prev + limit);
   };
 
   const toggleTaskStatus = async (taskId: number) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
 
-    const newStatus = task.status === 'done' ? 'todo' : 'done';
-    
-    setTasks(prev =>
-      prev.map(t =>
+    const newStatus = task.status === "done" ? "todo" : "done";
+
+    setTasks((prev) =>
+      prev.map((t) =>
         t.id === taskId
-          ? { ...t, status: newStatus, completed_at: newStatus === 'done' ? new Date().toISOString() : null }
+          ? {
+              ...t,
+              status: newStatus,
+              completed_at:
+                newStatus === "done" ? new Date().toISOString() : null,
+            }
           : t
       )
     );
@@ -101,6 +108,6 @@ export const useTasks = () => {
     refreshTasks,
     loadMore,
     toggleTaskStatus,
-    hasMore: tasks.length % limit === 0 && tasks.length > 0
+    hasMore: tasks.length % limit === 0 && tasks.length > 0,
   };
 };
