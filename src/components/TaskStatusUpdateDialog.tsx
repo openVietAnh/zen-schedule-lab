@@ -36,7 +36,7 @@ export const TaskStatusUpdateDialog = ({
         return ["in_progress", "cancelled"];
       case "in_progress":
         return ["completed", "cancelled"];
-      case "done":
+      case "completed":
       case "cancelled":
         return [];
       default:

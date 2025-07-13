@@ -1,4 +1,4 @@
-import { Users, Plus, Mail, UserPlus, Calendar } from "lucide-react";
+import { Users, Mail, UserPlus, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { CreateTeamDialog } from "@/components/CreateTeamDialog";
 
 interface Team {
   id: number;
@@ -80,10 +81,12 @@ const Teams = () => {
             <Users className="h-6 w-6 text-primary" />
             <h1 className="text-3xl font-bold text-foreground">Teams</h1>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Team
-          </Button>
+          {serviceUser?.id && (
+            <CreateTeamDialog 
+              ownerId={Number(serviceUser.id)} 
+              onTeamCreated={fetchTeams}
+            />
+          )}
         </div>
 
         {teams.length === 0 ? (
