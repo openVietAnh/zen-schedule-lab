@@ -48,9 +48,9 @@ export const PomodoroTimer = () => {
           }
           
           // Hide browser chrome by requesting fullscreen (optional)
-          // if (document.documentElement.requestFullscreen) {
-          //   await document.documentElement.requestFullscreen();
-          // }
+          if (document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          }
           
         } catch (err) {
           console.log('Focus mode features partially unavailable:', err);
