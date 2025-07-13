@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { CreateTeamDialog } from "@/components/CreateTeamDialog";
+import { AddMemberModal } from "@/components/AddMemberModal";
 
 interface Team {
   id: number;
@@ -23,6 +24,8 @@ const Teams = () => {
   const { toast } = useToast();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
   useEffect(() => {
     if (serviceUser?.id) {
@@ -60,6 +63,16 @@ const Teams = () => {
     return isActive 
       ? "bg-success text-success-foreground" 
       : "bg-muted text-muted-foreground";
+  };
+
+  const handleAddMember = (team: Team) => {
+    setSelectedTeam(team);
+    setShowAddMemberModal(true);
+  };
+
+  const handleCloseAddMemberModal = () => {
+    setShowAddMemberModal(false);
+    setSelectedTeam(null);
   };
 
   if (loading) {
@@ -126,7 +139,12 @@ const Teams = () => {
                       <Mail className="h-3 w-3 mr-1" />
                       Message Team
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleAddMember(team)}
+                    >
                       <UserPlus className="h-3 w-3 mr-1" />
                       Add Member
                     </Button>
@@ -137,6 +155,15 @@ const Teams = () => {
           </div>
         )}
       </div>
+
+      {selectedTeam && (
+        <AddMemberModal
+          isOpen={showAddMemberModal}
+          onClose={handleCloseAddMemberModal}
+          teamId={selectedTeam.id}
+          teamName={selectedTeam.name}
+        />
+      )}
     </div>
   );
 };

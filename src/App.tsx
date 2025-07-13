@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import Projects from "./pages/Projects";
 import Teams from "./pages/Teams";
 import Calendar from "./pages/Calendar";
+import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/join" element={<Join />} />
               <Route path="/*" element={
                 <ProtectedRoute>
                   <SidebarProvider>
