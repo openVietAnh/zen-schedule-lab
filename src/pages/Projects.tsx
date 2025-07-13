@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
@@ -40,6 +41,16 @@ interface Task {
   updated_at: string;
 }
 
+interface Team {
+  id: number;
+  name: string;
+  description: string;
+  owner_id: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const Projects = () => {
   const { serviceUser } = useAuth();
   const { toast } = useToast();
@@ -54,10 +65,18 @@ const Projects = () => {
     description: "",
     team_id: 0
   });
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: "",
+    description: "",
+    team_id: ""
+  });
 
   useEffect(() => {
     if (serviceUser?.id) {
       fetchProjects();
+      fetchTeams();
     }
   }, [serviceUser]);
 
@@ -84,6 +103,30 @@ const Projects = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const response = await fetch(
+        `https://team-sync-pro-nguyentrieu8.replit.app/teams/user/${serviceUser?.id}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setTeams(data);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to fetch teams",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to connect to server",
+        variant: "destructive",
+      });
     }
   };
 
@@ -166,6 +209,57 @@ const Projects = () => {
     }
   };
 
+  const handleCreateProject = async () => {
+    if (!createForm.name || !createForm.team_id) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://team-sync-pro-nguyentrieu8.replit.app/projects/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: createForm.name,
+            description: createForm.description || null,
+            team_id: parseInt(createForm.team_id),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const newProject = await response.json();
+        setProjects([...projects, newProject]);
+        setIsCreateModalOpen(false);
+        setCreateForm({ name: "", description: "", team_id: "" });
+        toast({
+          title: "Success",
+          description: "Project created successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create project",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to connect to server",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (isActive: boolean) => {
     return isActive 
       ? "bg-success text-success-foreground" 
@@ -209,10 +303,73 @@ const Projects = () => {
             <FolderKanban className="h-6 w-6 text-primary" />
             <h1 className="text-3xl font-bold text-foreground">Projects</h1>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Project
-          </Button>
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                New Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create New Project</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="create-name">Project Name *</Label>
+                  <Input
+                    id="create-name"
+                    value={createForm.name}
+                    onChange={(e) => setCreateForm({...createForm, name: e.target.value})}
+                    placeholder="Enter project name"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="create-description">Description</Label>
+                  <Textarea
+                    id="create-description"
+                    value={createForm.description}
+                    onChange={(e) => setCreateForm({...createForm, description: e.target.value})}
+                    placeholder="Enter project description (optional)"
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="create-team">Team *</Label>
+                  <Select
+                    value={createForm.team_id}
+                    onValueChange={(value) => setCreateForm({...createForm, team_id: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team.id} value={team.id.toString()}>
+                          {team.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex gap-2 pt-4">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => setIsCreateModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateProject} className="flex-1">
+                    Create Project
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {projects.length === 0 ? (
