@@ -1,9 +1,10 @@
-import { Calendar, Menu, Bell, Settings, LogOut, RefreshCw } from "lucide-react";
+import { Calendar, Bell, Settings, LogOut, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useTasks } from "@/hooks/useTasks";
@@ -39,9 +40,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm">
-                <Menu className="h-5 w-5" />
-              </Button>
+              <SidebarTrigger />
               <div>
                 <h1 className="text-xl font-semibold bg-gradient-primary bg-clip-text text-transparent">
                   Zen Schedule
