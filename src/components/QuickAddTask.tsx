@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Zap, Clock, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,17 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
+interface Project {
+  id: number;
+  name: string;
+  description: string | null;
+  team_id: number;
+  creator_id: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 interface QuickAddTaskProps {
   onTaskAdded?: () => void;
 }
@@ -29,12 +40,35 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
   
   // Form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high" | "urgent">("medium");
-  const [dueDate, setDueDate] = useState<Date>();
+  const [startDate, setStartDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [projectId, setProjectId] = useState<string>("");
+
+  useEffect(() => {
+    if (serviceUser?.id) {
+      fetchProjects();
+    }
+  }, [serviceUser]);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch(
+        `https://team-sync-pro-nguyentrieu8.replit.app/projects/user/${serviceUser?.id}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setProjects(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch projects:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +88,13 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
-          project_id: null, // Will be implemented later
+          project_id: projectId ? parseInt(projectId) : null,
           assignee_id: null, // Using creator as assignee for now
           parent_task_id: null,
           status: "todo",
           priority,
-          due_date: dueDate ? dueDate.toISOString() : null,
+          start_date: startDate ? new Date(startDate).toISOString() : null,
+          due_date: dueDate ? new Date(dueDate).toISOString() : null,
         }),
       });
 
@@ -76,7 +111,9 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
       setTitle("");
       setDescription("");
       setPriority("medium");
-      setDueDate(undefined);
+      setStartDate("");
+      setDueDate("");
+      setProjectId("");
       setIsExpanded(false);
       
       if (onTaskAdded) {
@@ -118,7 +155,7 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="What needs to be done?"
-            className="border-none shadow-none text-base px-0 focus-visible:ring-0"
+            className="text-base px-3"
             autoFocus
             required
           />
@@ -127,7 +164,7 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add a description..."
-            className="border-none shadow-none px-0 focus-visible:ring-0 resize-none"
+            className="px-3 resize-none"
             rows={2}
           />
           
@@ -153,32 +190,41 @@ export const QuickAddTask = ({ onTaskAdded }: QuickAddTaskProps) => {
                 </div>
               </RadioGroup>
             </div>
+
+            <div>
+              <Label className="text-sm font-medium">Project</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select project (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id.toString()}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             
             <div>
-              <Label className="text-sm font-medium">Due Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal mt-2",
-                      !dueDate && "text-muted-foreground"
-                    )}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={dueDate}
-                    onSelect={setDueDate}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label className="text-sm font-medium">Start Date & Time</Label>
+              <Input
+                type="datetime-local"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="mt-2"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium">Due Date & Time</Label>
+              <Input
+                type="datetime-local"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="mt-2"
+              />
             </div>
           </div>
 
