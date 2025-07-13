@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Play, Pause, RotateCcw, Coffee, Focus, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProgressRing } from "./ProgressRing";
@@ -12,7 +12,10 @@ export const PomodoroTimer = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
   const [isRunning, setIsRunning] = useState(false);
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
+  const [isFocusMode, setIsFocusMode] = useState(false);
   const { toast } = useToast();
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const originalTitle = useRef<string>(document.title);
 
   const durations = {
     work: 25 * 60,
@@ -25,6 +28,82 @@ export const PomodoroTimer = () => {
     shortBreak: "Short Break",
     longBreak: "Long Break",
   };
+
+  // Focus mode effects
+  useEffect(() => {
+    const enableFocusMode = async () => {
+      if (isFocusMode && isRunning && mode === "work") {
+        try {
+          // Request wake lock to keep screen active
+          if ('wakeLock' in navigator) {
+            wakeLockRef.current = await navigator.wakeLock.request('screen');
+          }
+          
+          // Change document title to show timer
+          document.title = `🍅 ${formatTime(timeLeft)} - Focus Time`;
+          
+          // Request notification permission (to potentially control them)
+          if ('Notification' in window && Notification.permission === 'default') {
+            await Notification.requestPermission();
+          }
+          
+          // Hide browser chrome by requesting fullscreen (optional)
+          // if (document.documentElement.requestFullscreen) {
+          //   await document.documentElement.requestFullscreen();
+          // }
+          
+        } catch (err) {
+          console.log('Focus mode features partially unavailable:', err);
+        }
+      } else {
+        // Restore normal state
+        document.title = originalTitle.current;
+        
+        // Release wake lock
+        if (wakeLockRef.current) {
+          wakeLockRef.current.release();
+          wakeLockRef.current = null;
+        }
+        
+        // Exit fullscreen if active
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      }
+    };
+
+    enableFocusMode();
+  }, [isFocusMode, isRunning, mode, timeLeft]);
+
+  // Update document title during focus mode
+  useEffect(() => {
+    if (isFocusMode && isRunning && mode === "work") {
+      document.title = `🍅 ${formatTime(timeLeft)} - Focus Time`;
+    }
+  }, [timeLeft, isFocusMode, isRunning, mode]);
+
+  // Handle visibility change to maintain focus
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (isFocusMode && isRunning && mode === "work" && document.hidden) {
+        // Show a notification or update title when tab becomes hidden
+        document.title = `🍅 ${formatTime(timeLeft)} - Focus Time (Keep focusing!)`;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isFocusMode, isRunning, mode, timeLeft]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.title = originalTitle.current;
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -148,7 +227,31 @@ export const PomodoroTimer = () => {
           <Button onClick={resetTimer} variant="outline" size="lg">
             <RotateCcw className="h-5 w-5" />
           </Button>
+          
+          {mode === "work" && (
+            <Button
+              onClick={() => setIsFocusMode(!isFocusMode)}
+              variant={isFocusMode ? "default" : "outline"}
+              size="lg"
+              className={isFocusMode ? "bg-purple-600 hover:bg-purple-700" : ""}
+            >
+              <Focus className="h-5 w-5" />
+            </Button>
+          )}
         </div>
+
+        {/* Focus Mode Indicator */}
+        {isFocusMode && isRunning && mode === "work" && (
+          <div className="bg-purple-100 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
+            <div className="flex items-center justify-center gap-2 text-purple-700 dark:text-purple-300">
+              <Focus className="h-4 w-4" />
+              <span className="text-sm font-medium">Focus Mode Active</span>
+            </div>
+            <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+              Notifications minimized • Screen kept awake • Stay focused!
+            </p>
+          </div>
+        )}
 
         {/* Stats */}
         {completedPomodoros > 0 && (
