@@ -2,41 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Zen Schedule Lab - Productivity Planner Design System
+All colors MUST be HSL for consistency and theme support.
+Inspired by nature, optimized for focus and calm productivity.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base Colors - Warm cream and soft whites for breathing room */
+    --background: 45 20% 97%;
+    --foreground: 25 15% 25%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card System - Subtle elevation with warm undertones */
+    --card: 45 25% 99%;
+    --card-foreground: 25 15% 25%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Interactive Elements */
+    --popover: 45 25% 99%;
+    --popover-foreground: 25 15% 25%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Sage green for focus and growth */
+    --primary: 85 25% 45%;
+    --primary-foreground: 45 25% 99%;
+    --primary-glow: 85 35% 55%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft stone gray for supporting elements */
+    --secondary: 25 10% 92%;
+    --secondary-foreground: 25 15% 35%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Gentle background tones */
+    --muted: 45 15% 94%;
+    --muted-foreground: 25 12% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Warm earth tone for highlights */
+    --accent: 35 30% 85%;
+    --accent-foreground: 25 20% 30%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Success - Growing green for completed tasks */
+    --success: 120 40% 50%;
+    --success-foreground: 45 25% 99%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Warning - Gentle amber for attention */
+    --warning: 45 85% 65%;
+    --warning-foreground: 25 20% 25%;
 
-    --radius: 0.5rem;
+    /* Destructive - Soft coral for deletion */
+    --destructive: 5 65% 65%;
+    --destructive-foreground: 45 25% 99%;
+
+    /* Borders and inputs with subtle definition */
+    --border: 25 15% 88%;
+    --input: 25 15% 88%;
+    --ring: 85 35% 55%;
+
+    /* Focus states for accessibility */
+    --focus: 85 45% 50%;
+    --focus-visible: 85 45% 50%;
+
+    /* Gradients for depth and visual interest */
+    --gradient-primary: linear-gradient(135deg, hsl(85, 25%, 45%), hsl(85, 35%, 55%));
+    --gradient-secondary: linear-gradient(135deg, hsl(45, 20%, 97%), hsl(45, 25%, 99%));
+    --gradient-warm: linear-gradient(180deg, hsl(45, 25%, 99%), hsl(35, 20%, 96%));
+    --gradient-success: linear-gradient(135deg, hsl(120, 40%, 50%), hsl(120, 45%, 60%));
+
+    /* Shadows for gentle depth */
+    --shadow-sm: 0 2px 8px hsl(25, 15%, 25%, 0.06);
+    --shadow-md: 0 4px 16px hsl(25, 15%, 25%, 0.08);
+    --shadow-lg: 0 8px 32px hsl(25, 15%, 25%, 0.1);
+    --shadow-glow: 0 0 24px hsl(85, 35%, 55%, 0.2);
+
+    /* Border radius for organic, friendly feel */
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
