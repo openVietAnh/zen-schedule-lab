@@ -55,7 +55,7 @@ export function AppSidebar() {
     active ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/50";
 
   return (
-    <Sidebar className="border-sidebar-border w-44">
+    <Sidebar className="border-sidebar-border">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium">

@@ -297,7 +297,7 @@ const TeamDetails = () => {
   return (
     <div className="h-full flex">
       {/* Left Sidebar */}
-      <div className="w-64 border-r bg-background p-6 overflow-y-auto">
+      <div className="w-80 border-r bg-background p-6 overflow-y-auto">
         {/* Team Info Card */}
         <Card className="mb-6">
           <CardHeader>
