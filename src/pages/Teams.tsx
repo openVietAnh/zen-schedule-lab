@@ -135,9 +135,16 @@ const Teams = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Mail className="h-3 w-3 mr-1" />
-                      Message Team
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => {
+                        window.location.href = `/teams/${team.id}`;
+                      }}
+                    >
+                      <Users className="h-3 w-3 mr-1" />
+                      Team Dashboard
                     </Button>
                     <Button 
                       variant="outline" 

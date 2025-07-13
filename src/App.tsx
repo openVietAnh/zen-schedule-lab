@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Projects from "./pages/Projects";
 import Teams from "./pages/Teams";
+import TeamDetails from "./pages/TeamDetails";
 import Calendar from "./pages/Calendar";
 import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,7 @@ const App = () => (
                             <Route path="/profile" element={<Profile />} />
                             <Route path="/projects" element={<Projects />} />
                             <Route path="/teams" element={<Teams />} />
+                            <Route path="/teams/:teamId" element={<TeamDetails />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="*" element={<NotFound />} />
