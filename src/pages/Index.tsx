@@ -5,7 +5,7 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
 import { TaskStatusUpdateDialog } from "@/components/TaskStatusUpdateDialog";
-import { AITaskCreator } from "@/components/AITaskCreator";
+import { AITaskCreator, ExtractedTaskData } from "@/components/AITaskCreator";
 import { useTasks, Task } from "@/hooks/useTasks";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
@@ -72,7 +72,10 @@ const Index = () => {
     }
   };
 
-  const handleAITaskCreation = async (extractedData: any) => {
+  const handleAITaskCreation = async (
+    extractedData: ExtractedTaskData,
+    callback: () => void
+  ) => {
     if (!serviceUser?.id || !serviceAccessToken) {
       toast.error("Authentication required");
       return;
@@ -106,6 +109,7 @@ const Index = () => {
 
       toast.success("Task created successfully!");
       refreshTasks();
+      callback();
     } catch (error) {
       toast.error("Failed to create task");
       console.error("Error creating task:", error);

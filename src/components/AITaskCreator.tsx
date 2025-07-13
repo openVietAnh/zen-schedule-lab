@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
 
-interface ExtractedTaskData {
+export interface ExtractedTaskData {
   title: string;
   description: string;
   priority: string;
@@ -15,7 +15,10 @@ interface ExtractedTaskData {
 }
 
 interface AITaskCreatorProps {
-  onTaskCreated: (extractedData: ExtractedTaskData) => void;
+  onTaskCreated: (
+    extractedData: ExtractedTaskData,
+    callback: () => void
+  ) => void;
 }
 
 export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
@@ -73,12 +76,6 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
       month: "long",
       day: "numeric",
     });
-  };
-
-  const resetForm = () => {
-    setScript("");
-    setExtractedData(null);
-    setShowConfirmation(false);
   };
 
   return (
@@ -162,7 +159,6 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
                   variant="outline"
                   onClick={() => {
                     setShowConfirmation(false);
-                    resetForm();
                   }}
                   className="flex-1"
                 >
@@ -170,9 +166,9 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
                 </Button>
                 <Button
                   onClick={() => {
-                    onTaskCreated(extractedData);
-                    setShowConfirmation(false);
-                    resetForm();
+                    onTaskCreated(extractedData, () =>
+                      setShowConfirmation(false)
+                    );
                   }}
                   className="flex-1"
                 >
