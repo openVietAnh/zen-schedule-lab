@@ -1,4 +1,4 @@
-import { Home, User, FolderKanban, Users, Calendar } from "lucide-react";
+import { Home, User, FolderKanban, Users, Calendar, BarChart3 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -37,6 +37,11 @@ const navigationItems = [
     title: "Calendar",
     url: "/calendar",
     icon: Calendar
+  },
+  {
+    title: "Reports",
+    url: "/reports",
+    icon: BarChart3
   }
 ];
 

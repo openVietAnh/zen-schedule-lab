@@ -17,6 +17,7 @@ import Teams from "./pages/Teams";
 import Calendar from "./pages/Calendar";
 import Join from "./pages/Join";
 import NotFound from "./pages/NotFound";
+import Reports from "./pages/Reports";
 
 const queryClient = new QueryClient();
 
@@ -45,8 +46,9 @@ const App = () => (
                             <Route path="/profile" element={<Profile />} />
                             <Route path="/projects" element={<Projects />} />
                             <Route path="/teams" element={<Teams />} />
-                            <Route path="/calendar" element={<Calendar />} />
-                            <Route path="*" element={<NotFound />} />
+                  <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>
                       </div>
