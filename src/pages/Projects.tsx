@@ -244,7 +244,7 @@ const Projects = () => {
 
     try {
       const response = await fetch(
-        "https://team-sync-pro-nguyentrieu8.replit.app/projects/",
+        `https://team-sync-pro-nguyentrieu8.replit.app/projects/?creator_id=${serviceUser?.id}`,
         {
           method: "POST",
           headers: {
@@ -254,7 +254,6 @@ const Projects = () => {
             name: createForm.name,
             description: createForm.description || null,
             team_id: parseInt(createForm.team_id),
-            creator_id: serviceUser?.id,
           }),
         }
       );
