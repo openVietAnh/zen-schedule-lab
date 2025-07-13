@@ -131,7 +131,7 @@ const TeamDetails = () => {
   const fetchTeamMembers = async () => {
     try {
       const response = await fetch(
-        `https://team-sync-pro-nguyentrieu8.replit.app/teams/${teamId}`
+        `https://team-sync-pro-nguyentrieu8.replit.app/teams/${teamId}/members`
       );
       if (response.ok) {
         const data = await response.json();
