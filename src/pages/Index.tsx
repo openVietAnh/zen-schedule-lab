@@ -8,8 +8,39 @@ import { TaskStatusUpdateDialog } from "@/components/TaskStatusUpdateDialog";
 import { AITaskCreator, ExtractedTaskData } from "@/components/AITaskCreator";
 import { useTasks, Task } from "@/hooks/useTasks";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+
+interface ScheduledTask {
+  task_id: number;
+  title: string;
+  description: string;
+  estimated_hours: number;
+  priority: string;
+  due_date: string;
+  scheduled_date: string;
+  suggested_start_time: string;
+  suggested_end_time: string;
+  scheduling_reason: string;
+}
+
+interface DailySchedule {
+  date: string;
+  day_name: string;
+  scheduled_tasks: ScheduledTask[];
+  total_scheduled_hours: number;
+  remaining_capacity: number;
+  capacity_utilization: number;
+}
+
+interface SmartSchedulerResponse {
+  user_id: number;
+  schedule_period: Record<string, string>;
+  daily_schedules: DailySchedule[];
+  unscheduled_tasks: any[];
+  summary: Record<string, any>;
+  recommendations: string[];
+}
 
 const Index = () => {
   const { serviceUser, serviceAccessToken } = useAuth();
@@ -25,6 +56,8 @@ const Index = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [syncingAll, setSyncingAll] = useState(false);
+  const [schedulingData, setSchedulingData] = useState<SmartSchedulerResponse | null>(null);
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
 
   const completedTasks = tasks.filter(
     (task) => task.status === "completed"
@@ -64,6 +97,7 @@ const Index = () => {
 
       toast.success("All tasks synced to Google Calendar");
       refreshTasks();
+      fetchSmartSchedule();
     } catch (error) {
       toast.error("Failed to sync tasks to calendar");
       console.error("Error syncing all tasks:", error);
@@ -71,6 +105,51 @@ const Index = () => {
       setSyncingAll(false);
     }
   };
+
+  const fetchSmartSchedule = async () => {
+    if (!serviceUser?.id || !serviceAccessToken) {
+      return;
+    }
+
+    setLoadingSchedule(true);
+    try {
+      const today = new Date();
+      const startDate = new Date(today);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(today);
+      endDate.setDate(endDate.getDate() + 3);
+      endDate.setHours(23, 59, 59, 999);
+
+      const response = await fetch(
+        `https://team-sync-pro-nguyentrieu8.replit.app/smart-scheduler/schedule-tasks?user_id=${serviceUser.id}&start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceAccessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch smart schedule");
+      }
+
+      const data = await response.json();
+      setSchedulingData(data);
+    } catch (error) {
+      console.error("Error fetching smart schedule:", error);
+    } finally {
+      setLoadingSchedule(false);
+    }
+  };
+
+  useEffect(() => {
+    if (serviceUser?.id && serviceAccessToken && tasks.length > 0) {
+      fetchSmartSchedule();
+    }
+  }, [serviceUser?.id, serviceAccessToken, tasks.length]);
 
   const handleAITaskCreation = async (
     extractedData: ExtractedTaskData,
@@ -109,6 +188,7 @@ const Index = () => {
 
       toast.success("Task created successfully!");
       refreshTasks();
+      fetchSmartSchedule();
       callback();
     } catch (error) {
       toast.error("Failed to create task");
@@ -209,17 +289,28 @@ const Index = () => {
                     </div>
                   ) : (
                     <>
-                      {tasks.map((task) => (
-                        <TaskCard
-                          key={task.id}
-                          task={task}
-                          onStatusUpdate={(task) => {
-                            setSelectedTask(task);
-                            setIsStatusDialogOpen(true);
-                          }}
-                          onStatusSynced={refreshTasks}
-                        />
-                      ))}
+                      {tasks.map((task) => {
+                        // Find scheduling info for this task
+                        const schedulingInfo = schedulingData?.daily_schedules
+                          .flatMap(schedule => schedule.scheduled_tasks)
+                          .find(scheduledTask => scheduledTask.task_id === task.id);
+
+                        return (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            onStatusUpdate={(task) => {
+                              setSelectedTask(task);
+                              setIsStatusDialogOpen(true);
+                            }}
+                            onStatusSynced={() => {
+                              refreshTasks();
+                              fetchSmartSchedule();
+                            }}
+                            schedulingInfo={schedulingInfo}
+                          />
+                        );
+                      })}
 
                       {hasMore && (
                         <Button

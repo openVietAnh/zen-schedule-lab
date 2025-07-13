@@ -14,16 +14,31 @@ import { Task } from "@/hooks/useTasks";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
+interface SchedulingInfo {
+  task_id: number;
+  title: string;
+  description: string;
+  estimated_hours: number;
+  priority: string;
+  due_date: string;
+  scheduled_date: string;
+  suggested_start_time: string;
+  suggested_end_time: string;
+  scheduling_reason: string;
+}
+
 interface TaskCardProps {
   task: Task;
   onStatusUpdate: (task: Task) => void;
   onStatusSynced: () => void;
+  schedulingInfo?: SchedulingInfo;
 }
 
 export const TaskCard = ({
   task,
   onStatusUpdate,
   onStatusSynced,
+  schedulingInfo,
 }: TaskCardProps) => {
   const { serviceUser, serviceAccessToken } = useAuth();
   const isCompleted = task.status === "completed";
@@ -189,6 +204,18 @@ export const TaskCard = ({
 
           <div className="text-xs">Created {formatDate(task.created_at)}</div>
         </div>
+
+        {/* Smart Scheduling Information */}
+        {schedulingInfo && (
+          <div className="pt-2 border-t border-border/50">
+            <div className="text-xs text-muted-foreground bg-primary/5 p-2 rounded">
+              <span className="font-medium text-primary">
+                Recommended to do this task in {schedulingInfo.estimated_hours} hours, 
+                from {schedulingInfo.suggested_start_time} to {schedulingInfo.suggested_end_time}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   );
