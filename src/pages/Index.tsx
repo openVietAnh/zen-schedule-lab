@@ -125,7 +125,9 @@ const Index = () => {
                       disabled={syncingAll || !serviceUser}
                     >
                       <CloudUpload
-                        className={`h-4 w-4 ${syncingAll ? "animate-spin" : ""}`}
+                        className={`h-4 w-4 ${
+                          syncingAll ? "animate-spin" : ""
+                        }`}
                       />
                       <span className="ml-1">Sync all</span>
                     </Button>
@@ -170,6 +172,7 @@ const Index = () => {
                             setSelectedTask(task);
                             setIsStatusDialogOpen(true);
                           }}
+                          onStatusSynced={refreshTasks}
                         />
                       ))}
 

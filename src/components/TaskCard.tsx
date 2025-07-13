@@ -1,4 +1,11 @@
-import { Clock, CheckCircle, Circle, Calendar, User, CloudUpload } from "lucide-react";
+import {
+  Clock,
+  CheckCircle,
+  Circle,
+  Calendar,
+  User,
+  CloudUpload,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +17,14 @@ import { toast } from "sonner";
 interface TaskCardProps {
   task: Task;
   onStatusUpdate: (task: Task) => void;
+  onStatusSynced: () => void;
 }
 
-export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
+export const TaskCard = ({
+  task,
+  onStatusUpdate,
+  onStatusSynced,
+}: TaskCardProps) => {
   const { serviceUser, serviceAccessToken } = useAuth();
   const isCompleted = task.status === "completed";
   const isDisabled = task.status === "completed" || task.status === "cancelled";
@@ -45,7 +57,7 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
 
   const handleSyncToCalendar = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!serviceUser?.id || !serviceAccessToken) {
       toast.error("Authentication required");
       return;
@@ -68,7 +80,7 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
       }
 
       toast.success("Task synced to Google Calendar");
-      // The parent component should refresh tasks
+      onStatusSynced();
     } catch (error) {
       toast.error("Failed to sync task to calendar");
       console.error("Error syncing task:", error);
@@ -159,7 +171,7 @@ export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
                   <span>{formatDate(task.due_date)}</span>
                   {isOverdue && <span className="text-destructive">⚠</span>}
                 </div>
-                
+
                 {task.calendar_sync_status === "pending" && (
                   <Button
                     variant="ghost"
