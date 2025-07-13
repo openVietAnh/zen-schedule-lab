@@ -12,6 +12,9 @@ import {
   TrendingUp,
   AlertTriangle,
   Clock,
+  Trophy,
+  Medal,
+  Award,
 } from "lucide-react";
 
 interface TeamMember {
@@ -109,6 +112,28 @@ interface MemberDashboard {
   generated_at: string;
 }
 
+interface Contributor {
+  user_id: number;
+  user_name: string;
+  user_email: string;
+  completed_tasks: number;
+  total_tasks: number;
+  completion_rate: number;
+  total_hours_completed: number;
+  avg_completion_time_hours: number;
+  rank: number;
+}
+
+interface WeeklyLeaderboard {
+  team_id: number;
+  team_name: string;
+  week_start: string;
+  week_end: string;
+  total_completed_tasks: number;
+  total_team_members: number;
+  contributors: Contributor[];
+}
+
 const TeamDetails = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const { toast } = useToast();
@@ -117,6 +142,8 @@ const TeamDetails = () => {
     useState<SprintDashboard | null>(null);
   const [memberDashboard, setMemberDashboard] =
     useState<MemberDashboard | null>(null);
+  const [weeklyLeaderboard, setWeeklyLeaderboard] = 
+    useState<WeeklyLeaderboard | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [loading, setLoading] = useState(true);
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -125,6 +152,7 @@ const TeamDetails = () => {
     if (teamId) {
       fetchTeamMembers();
       fetchSprintDashboard();
+      fetchWeeklyLeaderboard();
     }
   }, [teamId]);
 
@@ -199,6 +227,27 @@ const TeamDetails = () => {
       });
     } finally {
       setDashboardLoading(false);
+    }
+  };
+
+  const fetchWeeklyLeaderboard = async () => {
+    try {
+      const response = await fetch(
+        `https://team-sync-pro-nguyentrieu8.replit.app/teams/${teamId}/contributors/weekly?limit=10`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setWeeklyLeaderboard(data);
+      } else {
+        throw new Error("Failed to fetch weekly leaderboard");
+      }
+    } catch (error) {
+      console.error("Error fetching weekly leaderboard:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch weekly leaderboard",
+        variant: "destructive",
+      });
     }
   };
 
@@ -334,6 +383,86 @@ const TeamDetails = () => {
               <Target className="h-6 w-6" />
               <h1 className="text-2xl font-bold">Sprint Dashboard</h1>
             </div>
+
+            {/* Weekly Leaderboard */}
+            {weeklyLeaderboard && (
+              <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-yellow-800">
+                    <Trophy className="h-5 w-5" />
+                    Weekly Leaderboard
+                  </CardTitle>
+                  <p className="text-sm text-yellow-700">
+                    {formatDate(weeklyLeaderboard.week_start)} - {formatDate(weeklyLeaderboard.week_end)}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Top 3 Contributors */}
+                    {[1, 2, 3].map((position) => {
+                      const contributor = weeklyLeaderboard.contributors?.find(c => c.rank === position);
+                      const icons = [Trophy, Medal, Award];
+                      const IconComponent = icons[position - 1];
+                      const colors = ["text-yellow-600", "text-gray-500", "text-amber-600"];
+                      const bgColors = ["bg-yellow-100", "bg-gray-100", "bg-amber-100"];
+                      
+                      return (
+                        <div key={position} className={`p-4 rounded-lg ${bgColors[position - 1]} border`}>
+                          <div className="flex items-center gap-3 mb-3">
+                            <IconComponent className={`h-6 w-6 ${colors[position - 1]}`} />
+                            <span className="font-bold text-lg">#{position}</span>
+                          </div>
+                          
+                          {contributor ? (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback className="text-xs">
+                                    {contributor.user_name.split(" ").map(n => n[0]).join("")}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium text-sm">{contributor.user_name}</p>
+                                  <p className="text-xs text-muted-foreground">{contributor.user_email}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-xs">
+                                  <span>Completed Tasks:</span>
+                                  <span className="font-medium">{contributor.completed_tasks}</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                  <span>Completion Rate:</span>
+                                  <span className="font-medium">{contributor.completion_rate.toFixed(1)}%</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                  <span>Hours:</span>
+                                  <span className="font-medium">{contributor.total_hours_completed.toFixed(1)}h</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center text-muted-foreground">
+                              <p className="text-sm">No contributor</p>
+                              <p className="text-xs">for this position</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {weeklyLeaderboard.contributors && weeklyLeaderboard.contributors.length > 3 && (
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm text-muted-foreground">
+                        +{weeklyLeaderboard.contributors.length - 3} more contributors this week
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Sprint Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
