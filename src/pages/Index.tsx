@@ -5,6 +5,7 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
 import { TaskStatusUpdateDialog } from "@/components/TaskStatusUpdateDialog";
+import { AITaskCreator } from "@/components/AITaskCreator";
 import { useTasks, Task } from "@/hooks/useTasks";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
@@ -68,6 +69,47 @@ const Index = () => {
       console.error("Error syncing all tasks:", error);
     } finally {
       setSyncingAll(false);
+    }
+  };
+
+  const handleAITaskCreation = async (extractedData: any) => {
+    if (!serviceUser?.id || !serviceAccessToken) {
+      toast.error("Authentication required");
+      return;
+    }
+
+    try {
+      const taskData = {
+        title: extractedData.title,
+        description: extractedData.description,
+        priority: extractedData.priority,
+        start_date: extractedData.start_date,
+        due_date: extractedData.due_date,
+        category: extractedData.category,
+        creator_id: serviceUser.id,
+      };
+
+      const response = await fetch(
+        "https://team-sync-pro-nguyentrieu8.replit.app/tasks/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceAccessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(taskData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create task");
+      }
+
+      toast.success("Task created successfully!");
+      refreshTasks();
+    } catch (error) {
+      toast.error("Failed to create task");
+      console.error("Error creating task:", error);
     }
   };
 
@@ -208,6 +250,9 @@ const Index = () => {
                   </p>
                 </div>
               </div>
+
+              {/* AI Task Creator */}
+              <AITaskCreator onTaskCreated={handleAITaskCreation} />
             </div>
           </div>
         </div>
