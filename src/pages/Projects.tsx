@@ -231,6 +231,7 @@ const Projects = () => {
             name: createForm.name,
             description: createForm.description || null,
             team_id: parseInt(createForm.team_id),
+            creator_id: serviceUser?.id,
           }),
         }
       );

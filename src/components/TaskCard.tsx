@@ -7,11 +7,12 @@ import { Task } from "@/hooks/useTasks";
 
 interface TaskCardProps {
   task: Task;
-  onToggleComplete: (id: number) => void;
+  onStatusUpdate: (task: Task) => void;
 }
 
-export const TaskCard = ({ task, onToggleComplete }: TaskCardProps) => {
+export const TaskCard = ({ task, onStatusUpdate }: TaskCardProps) => {
   const isCompleted = task.status === 'done';
+  const isDisabled = task.status === 'done' || task.status === 'cancelled';
   
   const priorityColors = {
     urgent: "bg-destructive/10 border-destructive/20",
@@ -41,12 +42,13 @@ export const TaskCard = ({ task, onToggleComplete }: TaskCardProps) => {
   return (
     <Card 
       className={cn(
-        "p-4 transition-all duration-300 hover:shadow-md group cursor-pointer",
+        "p-4 transition-all duration-300 hover:shadow-md group",
         isCompleted && "opacity-60",
         priorityColors[task.priority],
-        isOverdue && "border-destructive/40 bg-destructive/5"
+        isOverdue && "border-destructive/40 bg-destructive/5",
+        !isDisabled && "cursor-pointer"
       )}
-      onClick={() => onToggleComplete(task.id)}
+      onClick={() => !isDisabled && onStatusUpdate(task)}
     >
       <div className="space-y-3">
         {/* Header with status toggle and badges */}
@@ -55,7 +57,11 @@ export const TaskCard = ({ task, onToggleComplete }: TaskCardProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="p-0 h-6 w-6 rounded-full hover:bg-transparent flex-shrink-0 mt-0.5"
+              className={cn(
+                "p-0 h-6 w-6 rounded-full hover:bg-transparent flex-shrink-0 mt-0.5",
+                isDisabled && "cursor-not-allowed opacity-50"
+              )}
+              disabled={isDisabled}
             >
               {isCompleted ? (
                 <CheckCircle className="h-5 w-5 text-success animate-scale-in" />

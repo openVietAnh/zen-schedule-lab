@@ -4,10 +4,14 @@ import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
-import { useTasks } from "@/hooks/useTasks";
+import { TaskStatusUpdateDialog } from "@/components/TaskStatusUpdateDialog";
+import { useTasks, Task } from "@/hooks/useTasks";
+import { useState } from "react";
 
 const Index = () => {
   const { tasks, loading, error, refreshTasks, loadMore, toggleTaskStatus, hasMore } = useTasks();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
 
   const completedTasks = tasks.filter((task) => task.status === 'done').length;
   const totalTasks = tasks.length;
@@ -98,7 +102,10 @@ const Index = () => {
                         <TaskCard
                           key={task.id}
                           task={task}
-                          onToggleComplete={toggleTaskStatus}
+                          onStatusUpdate={(task) => {
+                            setSelectedTask(task);
+                            setIsStatusDialogOpen(true);
+                          }}
                         />
                       ))}
                       
@@ -138,6 +145,18 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      <TaskStatusUpdateDialog
+        task={selectedTask}
+        isOpen={isStatusDialogOpen}
+        onClose={() => {
+          setIsStatusDialogOpen(false);
+          setSelectedTask(null);
+        }}
+        onSuccess={() => {
+          refreshTasks();
+        }}
+      />
     </div>
   );
 };
