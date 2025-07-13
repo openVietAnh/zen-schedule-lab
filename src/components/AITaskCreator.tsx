@@ -21,7 +21,9 @@ interface AITaskCreatorProps {
 export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
   const [script, setScript] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractedData, setExtractedData] = useState<ExtractedTaskData | null>(null);
+  const [extractedData, setExtractedData] = useState<ExtractedTaskData | null>(
+    null
+  );
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleExtract = async () => {
@@ -32,13 +34,16 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
 
     setIsExtracting(true);
     try {
-      const response = await fetch("https://literate-starfish-first.ngrok-free.app/api/extract", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ script }),
-      });
+      const response = await fetch(
+        "https://literate-starfish-first.ngrok-free.app/api/extract",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ script }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to extract task data");
@@ -116,29 +121,39 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
             <CardContent className="space-y-4">
               <div className="space-y-3 text-sm">
                 <div>
-                  <span className="font-medium">Title:</span> {extractedData.title}
+                  <span className="font-medium">Title:</span>{" "}
+                  {extractedData.title}
                 </div>
                 <div>
-                  <span className="font-medium">Description:</span> {extractedData.description}
+                  <span className="font-medium">Description:</span>{" "}
+                  {extractedData.description}
                 </div>
                 <div>
-                  <span className="font-medium">Priority:</span> 
-                  <span className={`ml-1 capitalize ${
-                    extractedData.priority === 'high' ? 'text-red-600' :
-                    extractedData.priority === 'medium' ? 'text-yellow-600' : 'text-green-600'
-                  }`}>
+                  <span className="font-medium">Priority:</span>
+                  <span
+                    className={`ml-1 capitalize ${
+                      extractedData.priority === "high"
+                        ? "text-red-600"
+                        : extractedData.priority === "medium"
+                        ? "text-yellow-600"
+                        : "text-green-600"
+                    }`}
+                  >
                     {extractedData.priority}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">Start Date:</span> {formatDate(extractedData.start_date)}
+                  <span className="font-medium">Start Date:</span>{" "}
+                  {formatDate(extractedData.start_date)}
                 </div>
                 <div>
-                  <span className="font-medium">Due Date:</span> {formatDate(extractedData.due_date)}
+                  <span className="font-medium">Due Date:</span>{" "}
+                  {formatDate(extractedData.due_date)}
                 </div>
                 {extractedData.category && (
                   <div>
-                    <span className="font-medium">Category:</span> {extractedData.category}
+                    <span className="font-medium">Category:</span>{" "}
+                    {extractedData.category}
                   </div>
                 )}
               </div>

@@ -83,14 +83,13 @@ const Index = () => {
         title: extractedData.title,
         description: extractedData.description,
         priority: extractedData.priority,
-        start_date: extractedData.start_date,
-        due_date: extractedData.due_date,
+        start_date: new Date(extractedData.start_date).toISOString(),
+        due_date: new Date(extractedData.due_date).toISOString(),
         category: extractedData.category,
-        creator_id: serviceUser.id,
       };
 
       const response = await fetch(
-        "https://team-sync-pro-nguyentrieu8.replit.app/tasks/",
+        `https://team-sync-pro-nguyentrieu8.replit.app/tasks/?creator_id=${serviceUser.id}`,
         {
           method: "POST",
           headers: {
