@@ -73,8 +73,7 @@ const Auth = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        scopes:
-          "email openid profile https://www.googleapis.com/auth/calendar.readonly",
+        scopes: "email openid profile https://www.googleapis.com/auth/calendar",
         redirectTo: `${window.location.origin}/`,
       },
     });
