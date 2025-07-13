@@ -14,6 +14,7 @@ interface AuthContextType {
   session: Session | null;
   serviceUser: ServiceUser | null;
   serviceAccessToken: string | null;
+  googleAccessToken: string | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [serviceUser, setServiceUser] = useState<ServiceUser | null>(null);
   const [serviceAccessToken, setServiceAccessToken] = useState<string | null>(null);
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const callServiceLogin = async (accessToken: string) => {
@@ -58,6 +60,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
+        // Store Google access token for Calendar API access
+        if (session?.provider_token) {
+          setGoogleAccessToken(session.provider_token);
+        } else {
+          setGoogleAccessToken(null);
+        }
+        
         // Call service login API if we have a Google provider token
         if (session?.provider_token && event === 'SIGNED_IN') {
           setTimeout(() => {
@@ -78,8 +87,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Call service login API if we have a Google provider token
+      // Store Google access token for Calendar API access
       if (session?.provider_token) {
+        setGoogleAccessToken(session.provider_token);
         callServiceLogin(session.provider_token);
       }
       
@@ -92,6 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     setServiceUser(null);
     setServiceAccessToken(null);
+    setGoogleAccessToken(null);
     await supabase.auth.signOut();
   };
 
@@ -100,6 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     serviceUser,
     serviceAccessToken,
+    googleAccessToken,
     loading,
     signOut,
   };
