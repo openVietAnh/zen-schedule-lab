@@ -361,21 +361,20 @@ const TeamDetails = () => {
               </Card>
             </div>
 
-            {/* Task Groups */}
             <Card>
               <CardHeader>
                 <CardTitle>Task Groups by Status</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-6">
-                  {sprintDashboard.task_groups.map((group, index) => (
+                  {(sprintDashboard.task_groups || []).map((group, index) => (
                     <div key={index} className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h3 className="font-medium capitalize">{group.status.replace('_', ' ')}</h3>
-                        <Badge variant="outline">{group.tasks.length} tasks</Badge>
+                        <Badge variant="outline">{(group.tasks || []).length} tasks</Badge>
                       </div>
                       <div className="space-y-2">
-                        {group.tasks.slice(0, 3).map((task) => (
+                        {(group.tasks || []).slice(0, 3).map((task) => (
                           <div key={task.id} className="p-3 border rounded-lg">
                             <div className="flex items-center justify-between">
                               <span className="font-medium">{task.title}</span>
@@ -393,9 +392,9 @@ const TeamDetails = () => {
                             </p>
                           </div>
                         ))}
-                        {group.tasks.length > 3 && (
+                        {(group.tasks || []).length > 3 && (
                           <p className="text-sm text-muted-foreground">
-                            +{group.tasks.length - 3} more tasks...
+                            +{(group.tasks || []).length - 3} more tasks...
                           </p>
                         )}
                       </div>
@@ -406,19 +405,19 @@ const TeamDetails = () => {
             </Card>
 
             {/* Blockers and Issues */}
-            {(sprintDashboard.blockers.length > 0 || sprintDashboard.scope_creep_tasks.length > 0) && (
+            {((sprintDashboard.blockers || []).length > 0 || (sprintDashboard.scope_creep_tasks || []).length > 0) && (
               <div className="grid md:grid-cols-2 gap-6">
-                {sprintDashboard.blockers.length > 0 && (
+                {(sprintDashboard.blockers || []).length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-red-600">
                         <AlertTriangle className="h-5 w-5" />
-                        Blockers ({sprintDashboard.blockers.length})
+                        Blockers ({(sprintDashboard.blockers || []).length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {sprintDashboard.blockers.slice(0, 3).map((task) => (
+                        {(sprintDashboard.blockers || []).slice(0, 3).map((task) => (
                           <div key={task.id} className="p-3 border rounded-lg border-red-200">
                             <p className="font-medium">{task.title}</p>
                             <p className="text-sm text-muted-foreground">
@@ -431,17 +430,17 @@ const TeamDetails = () => {
                   </Card>
                 )}
 
-                {sprintDashboard.scope_creep_tasks.length > 0 && (
+                {(sprintDashboard.scope_creep_tasks || []).length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-orange-600">
                         <Clock className="h-5 w-5" />
-                        Scope Creep ({sprintDashboard.scope_creep_tasks.length})
+                        Scope Creep ({(sprintDashboard.scope_creep_tasks || []).length})
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {sprintDashboard.scope_creep_tasks.slice(0, 3).map((task) => (
+                        {(sprintDashboard.scope_creep_tasks || []).slice(0, 3).map((task) => (
                           <div key={task.id} className="p-3 border rounded-lg border-orange-200">
                             <p className="font-medium">{task.title}</p>
                             <p className="text-sm text-muted-foreground">
@@ -524,11 +523,11 @@ const TeamDetails = () => {
               {/* Assigned Tasks */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Assigned Tasks ({memberDashboard.member_dashboard.assigned_tasks.length})</CardTitle>
+                  <CardTitle>Assigned Tasks ({(memberDashboard.member_dashboard.assigned_tasks || []).length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {memberDashboard.member_dashboard.assigned_tasks.slice(0, 5).map((task) => (
+                    {(memberDashboard.member_dashboard.assigned_tasks || []).slice(0, 5).map((task) => (
                       <div key={task.id} className="p-3 border rounded-lg">
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{task.title}</span>
@@ -556,12 +555,12 @@ const TeamDetails = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-red-600">
-                    Overdue Tasks ({memberDashboard.member_dashboard.overdue_tasks.length})
+                    Overdue Tasks ({(memberDashboard.member_dashboard.overdue_tasks || []).length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {memberDashboard.member_dashboard.overdue_tasks.slice(0, 5).map((task) => (
+                    {(memberDashboard.member_dashboard.overdue_tasks || []).slice(0, 5).map((task) => (
                       <div key={task.id} className="p-3 border rounded-lg border-red-200">
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{task.title}</span>
@@ -582,15 +581,14 @@ const TeamDetails = () => {
               </Card>
             </div>
 
-            {/* Recommendations */}
-            {memberDashboard.member_dashboard.recommendations.length > 0 && (
+            {(memberDashboard.member_dashboard.recommendations || []).length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Recommendations</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {memberDashboard.member_dashboard.recommendations.map((recommendation, index) => (
+                    {(memberDashboard.member_dashboard.recommendations || []).map((recommendation, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                         <span>{recommendation}</span>
