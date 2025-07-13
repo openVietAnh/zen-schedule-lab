@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Calendar, Menu, Bell, Settings } from "lucide-react";
+import { Calendar, Menu, Bell, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface Task {
   id: string;
@@ -15,6 +17,8 @@ interface Task {
 }
 
 const Index = () => {
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
@@ -59,6 +63,14 @@ const Index = () => {
   const completedTasks = tasks.filter((task) => task.completed).length;
   const totalTasks = tasks.length;
 
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You've been successfully signed out.",
+    });
+  };
+
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString("en-US", {
     weekday: "long",
@@ -88,11 +100,17 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {user?.email}
+              </span>
               <Button variant="ghost" size="sm">
                 <Bell className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="sm">
                 <Settings className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-5 w-5" />
               </Button>
             </div>
           </div>
