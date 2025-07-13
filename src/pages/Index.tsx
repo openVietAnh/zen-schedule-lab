@@ -77,7 +77,7 @@ const Index = () => {
                   </Button>
                 </div>
 
-                <QuickAddTask onTaskAdded={refreshTasks} />
+            <QuickAddTask onTaskAdded={refreshTasks} />
 
                 {error && (
                   <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
