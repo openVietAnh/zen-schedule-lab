@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,8 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl") || "/";
 
   // Check if user is already logged in
   useEffect(() => {
@@ -33,18 +35,18 @@ const Auth = () => {
         data: { session },
       } = await supabase.auth.getSession();
       if (session) {
-        navigate("/");
+        navigate(returnUrl);
       }
     };
     checkSession();
-  }, [navigate]);
+  }, [navigate, returnUrl]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}${returnUrl}`;
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -74,7 +76,7 @@ const Auth = () => {
       provider: "google",
       options: {
         scopes: "email openid profile https://www.googleapis.com/auth/calendar",
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}${returnUrl}`,
       },
     });
 
@@ -98,7 +100,7 @@ const Auth = () => {
     if (error) {
       setError(error.message);
     } else {
-      navigate("/");
+      navigate(returnUrl);
       toast({
         title: "Welcome back!",
         description: "You've successfully signed in.",

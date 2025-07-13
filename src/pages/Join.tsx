@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,6 +9,7 @@ import { Users } from "lucide-react";
 
 const Join = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { serviceUser } = useAuth();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -59,6 +61,11 @@ const Join = () => {
     }
   };
 
+  const handleLoginRedirect = () => {
+    const currentUrl = window.location.pathname + window.location.search;
+    navigate(`/auth?returnUrl=${encodeURIComponent(currentUrl)}`);
+  };
+
   if (!teamId || !role) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
@@ -84,12 +91,18 @@ const Join = () => {
           <CardHeader className="text-center">
             <Users className="h-12 w-12 text-primary mx-auto mb-4" />
             <CardTitle>Team Invitation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-muted-foreground">
-              Please log in to accept your team invitation.
-            </p>
-          </CardContent>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-center text-muted-foreground">
+            Please log in to accept your team invitation.
+          </p>
+          <Button 
+            onClick={handleLoginRedirect}
+            className="w-full"
+          >
+            Log In
+          </Button>
+        </CardContent>
         </Card>
       </div>
     );
