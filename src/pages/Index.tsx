@@ -115,14 +115,14 @@ const Index = () => {
     try {
       const today = new Date();
       const startDate = new Date(today);
-      startDate.setHours(0, 0, 0, 0);
-      
       const endDate = new Date(today);
       endDate.setDate(endDate.getDate() + 3);
-      endDate.setHours(23, 59, 59, 999);
+
+      const startDateString = startDate.toISOString().split('T')[0];
+      const endDateString = endDate.toISOString().split('T')[0];
 
       const response = await fetch(
-        `https://team-sync-pro-nguyentrieu8.replit.app/smart-scheduler/schedule-tasks?user_id=${serviceUser.id}&start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`,
+        `https://team-sync-pro-nguyentrieu8.replit.app/smart-scheduler/schedule-tasks?user_id=${serviceUser.id}&start_date=${startDateString}&end_date=${endDateString}`,
         {
           method: "POST",
           headers: {
