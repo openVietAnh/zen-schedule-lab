@@ -3,6 +3,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Header = () => {
   const { serviceUser, signOut } = useAuth();
@@ -41,6 +42,7 @@ export const Header = () => {
             >
               {serviceUser?.email}
             </Button>
+            <ThemeToggle />
             <Button variant="ghost" size="sm">
               <Bell className="h-5 w-5" />
             </Button>
