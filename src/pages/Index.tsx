@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Calendar, Menu, Bell, Settings, LogOut } from "lucide-react";
+import { Calendar, Menu, Bell, Settings, LogOut, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
@@ -7,60 +6,14 @@ import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  priority: "high" | "medium" | "low";
-  estimatedTime?: number;
-}
+import { useTasks } from "@/hooks/useTasks";
 
 const Index = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Review project proposal",
-      completed: false,
-      priority: "high",
-      estimatedTime: 45,
-    },
-    {
-      id: "2",
-      title: "Respond to team emails",
-      completed: true,
-      priority: "medium",
-      estimatedTime: 15,
-    },
-    {
-      id: "3",
-      title: "Plan weekend trip",
-      completed: false,
-      priority: "low",
-      estimatedTime: 30,
-    },
-  ]);
+  const { tasks, loading, error, refreshTasks, loadMore, toggleTaskStatus, hasMore } = useTasks();
 
-  const handleToggleTask = (id: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const handleAddTask = (newTask: Omit<Task, "id" | "completed">) => {
-    const task: Task = {
-      id: Date.now().toString(),
-      completed: false,
-      ...newTask,
-    };
-    setTasks((prev) => [task, ...prev]);
-  };
-
-  const completedTasks = tasks.filter((task) => task.completed).length;
+  const completedTasks = tasks.filter((task) => task.status === 'done').length;
   const totalTasks = tasks.length;
 
   const handleSignOut = async () => {
@@ -154,25 +107,60 @@ const Index = () => {
               style={{ animationDelay: "0.2s" }}
             >
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  Today's Focus
-                  <span className="text-sm font-normal text-muted-foreground">
-                    ({completedTasks}/{totalTasks} completed)
-                  </span>
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    Today's Focus
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({completedTasks}/{totalTasks} completed)
+                    </span>
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={refreshTasks}
+                    disabled={loading}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
 
-                <QuickAddTask onTaskAdded={() => {
-                  // Optionally refresh tasks here when API integration is complete
-                }} />
+                <QuickAddTask onTaskAdded={refreshTasks} />
+
+                {error && (
+                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
 
                 <div className="space-y-3">
-                  {tasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onToggleComplete={handleToggleTask}
-                    />
-                  ))}
+                  {loading && tasks.length === 0 ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      {tasks.map((task) => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          onToggleComplete={toggleTaskStatus}
+                        />
+                      ))}
+                      
+                      {hasMore && (
+                        <Button
+                          variant="outline"
+                          onClick={loadMore}
+                          disabled={loading}
+                          className="w-full"
+                        >
+                          {loading ? "Loading..." : "Load More"}
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
