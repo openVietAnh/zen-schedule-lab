@@ -1,4 +1,4 @@
-import { User, FolderKanban, Users, Calendar } from "lucide-react";
+import { Home, User, FolderKanban, Users, Calendar } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -13,6 +13,11 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
+  {
+    title: "Home",
+    url: "/", 
+    icon: Home
+  },
   {
     title: "Profile",
     url: "/profile", 

@@ -1,29 +1,17 @@
-import { Calendar, Bell, Settings, LogOut, RefreshCw } from "lucide-react";
+import { Calendar, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/TaskCard";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { QuickAddTask } from "@/components/QuickAddTask";
 import { DailyStats } from "@/components/DailyStats";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import { useTasks } from "@/hooks/useTasks";
 
 const Index = () => {
-  const { user, signOut } = useAuth();
-  const { toast } = useToast();
   const { tasks, loading, error, refreshTasks, loadMore, toggleTaskStatus, hasMore } = useTasks();
 
   const completedTasks = tasks.filter((task) => task.status === 'done').length;
   const totalTasks = tasks.length;
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: "Signed out",
-      description: "You've been successfully signed out.",
-    });
-  };
 
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString("en-US", {
@@ -34,41 +22,7 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger />
-              <div>
-                <h1 className="text-xl font-semibold bg-gradient-primary bg-clip-text text-transparent">
-                  Zen Schedule
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Mindful Productivity
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground hidden sm:inline">
-                {user?.email}
-              </span>
-              <Button variant="ghost" size="sm">
-                <Bell className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Settings className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-background">
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
