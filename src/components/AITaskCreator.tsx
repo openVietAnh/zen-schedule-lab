@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Mic, MicOff } from "lucide-react";
+import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 
 export interface ExtractedTaskData {
   title: string;
@@ -28,6 +29,12 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
     null
   );
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const { isRecording, isProcessing, toggleRecording } = useVoiceRecording({
+    onTranscription: (text) => {
+      setScript(prev => prev ? `${prev} ${text}` : text);
+    }
+  });
 
   const handleExtract = async () => {
     if (!script.trim()) {
@@ -85,26 +92,63 @@ export const AITaskCreator = ({ onTaskCreated }: AITaskCreatorProps) => {
           <CardTitle className="text-lg">What do you want to do?</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea
-            value={script}
-            onChange={(e) => setScript(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="I want to create a task named 'meeting note' where I can add meeting notes, task recording, and meeting recording. I will start in 2025/07/14 and this task should be completed in 2025/07/20 with high priority. This task is for my personal project."
-            className="min-h-[120px] resize-none"
-            disabled={isExtracting}
-          />
-          <Button
-            onClick={handleExtract}
-            disabled={isExtracting || !script.trim()}
-            className="w-full"
-          >
-            {isExtracting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Send className="h-4 w-4 mr-2" />
+          <div className="relative">
+            <Textarea
+              value={script}
+              onChange={(e) => setScript(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="I want to create a task named 'meeting note' where I can add meeting notes, task recording, and meeting recording. I will start in 2025/07/14 and this task should be completed in 2025/07/20 with high priority. This task is for my personal project."
+              className={`min-h-[120px] resize-none transition-colors ${
+                isRecording 
+                  ? "border-red-500 dark:border-red-400 bg-red-50 dark:bg-red-950/20" 
+                  : ""
+              }`}
+              disabled={isExtracting}
+            />
+            {isRecording && (
+              <div className="absolute top-2 right-2 flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="font-medium">Recording...</span>
+              </div>
             )}
-            {isExtracting ? "Processing..." : "Create Task"}
-          </Button>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              onClick={toggleRecording}
+              disabled={isExtracting}
+              variant={isRecording ? "destructive" : "outline"}
+              size="icon"
+              className={`transition-all ${
+                isRecording 
+                  ? "animate-pulse bg-red-600 hover:bg-red-700" 
+                  : isProcessing 
+                  ? "opacity-50" 
+                  : ""
+              }`}
+            >
+              {isProcessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isRecording ? (
+                <MicOff className="h-4 w-4" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
+            </Button>
+            
+            <Button
+              onClick={handleExtract}
+              disabled={isExtracting || !script.trim() || isRecording}
+              className="flex-1"
+            >
+              {isExtracting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Send className="h-4 w-4 mr-2" />
+              )}
+              {isExtracting ? "Processing..." : "Create Task"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
