@@ -56,7 +56,8 @@ const Index = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [syncingAll, setSyncingAll] = useState(false);
-  const [schedulingData, setSchedulingData] = useState<SmartSchedulerResponse | null>(null);
+  const [schedulingData, setSchedulingData] =
+    useState<SmartSchedulerResponse | null>(null);
   const [loadingSchedule, setLoadingSchedule] = useState(false);
 
   const completedTasks = tasks.filter(
@@ -118,8 +119,8 @@ const Index = () => {
       const endDate = new Date(today);
       endDate.setDate(endDate.getDate() + 3);
 
-      const startDateString = startDate.toISOString().split('T')[0];
-      const endDateString = endDate.toISOString().split('T')[0];
+      const startDateString = startDate.toISOString().split("T")[0];
+      const endDateString = endDate.toISOString().split("T")[0];
 
       const response = await fetch(
         `https://team-sync-pro-nguyentrieu8.replit.app/smart-scheduler/schedule-tasks?user_id=${serviceUser.id}&start_date=${startDateString}&end_date=${endDateString}`,
@@ -208,7 +209,7 @@ const Index = () => {
               <span>{dateString}</span>
             </div>
             <h2 className="text-3xl font-bold text-foreground">
-              Good morning! ☀️
+              Good afternoon! ☀️
             </h2>
             <p className="text-muted-foreground">
               Ready to make today productive and meaningful?
@@ -292,8 +293,10 @@ const Index = () => {
                       {tasks.map((task) => {
                         // Find scheduling info for this task
                         const schedulingInfo = schedulingData?.daily_schedules
-                          .flatMap(schedule => schedule.scheduled_tasks)
-                          .find(scheduledTask => scheduledTask.task_id === task.id);
+                          .flatMap((schedule) => schedule.scheduled_tasks)
+                          .find(
+                            (scheduledTask) => scheduledTask.task_id === task.id
+                          );
 
                         return (
                           <TaskCard
