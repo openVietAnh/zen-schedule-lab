@@ -13,6 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
+import { MemberDashboard } from "@/components/MemberDashboard";
 
 interface UserProfile {
   email: string;
@@ -478,6 +479,9 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Member Dashboard Section */}
+        <MemberDashboard />
 
         {/* Task Lists Section */}
         <Card>
