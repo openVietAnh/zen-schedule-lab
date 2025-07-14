@@ -25,7 +25,7 @@ export const Header = () => {
             <SidebarTrigger />
             <div>
               <h1 className="text-xl font-semibold bg-gradient-primary bg-clip-text text-transparent">
-                Zen Schedule
+                TekPlan
               </h1>
               <p className="text-xs text-muted-foreground">
                 Mindful Productivity
@@ -34,9 +34,9 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-sm text-muted-foreground hidden sm:inline-flex hover:text-primary"
               onClick={handleEmailClick}
             >
